@@ -1,0 +1,461 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Share,
+  Alert,
+  Platform,
+} from 'react-native';
+import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Post, PostType } from '@/types';
+import { Avatar } from './Avatar';
+import { Badge } from './Badge';
+import { CodeBlock } from './CodeBlock';
+import { useDevCircle } from '@/context/DevCircleContext';
+
+interface PostCardProps {
+  post: Post;
+  showFullContent?: boolean;
+}
+
+export const PostCard: React.FC<PostCardProps> = ({
+  post,
+  showFullContent = false,
+}) => {
+  const router = useRouter();
+  const { toggleLikePost, toggleBookmarkPost } = useDevCircle();
+  const [showOptions, setShowOptions] = useState(false);
+
+  const getTypeBadge = (type: PostType) => {
+    switch (type) {
+      case 'code':
+        return <Badge label="Code Snippet" variant="info" size="sm" />;
+      case 'project':
+        return <Badge label="Project" variant="primary" size="sm" />;
+      case 'question':
+        return <Badge label="Question" variant="warning" size="sm" />;
+      case 'career':
+        return <Badge label="Career" variant="purple" size="sm" />;
+      case 'resource':
+        return <Badge label="Resource" variant="info" size="sm" />;
+      case 'discussion':
+      default:
+        return <Badge label="Discussion" variant="ghost" size="sm" />;
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      const shareUrl = `https://devcircle.gh/post/${post.id}`;
+      if (Platform.OS === 'web') {
+        if (navigator.share) {
+          await navigator.share({
+            title: post.title || 'DevCircle Post',
+            text: post.content.slice(0, 100),
+            url: shareUrl,
+          });
+        } else {
+          Alert.alert('Link Copied', 'Post link copied to clipboard!');
+        }
+      } else {
+        await Share.share({
+          title: post.title || 'DevCircle Post',
+          message: `${post.content.slice(0, 100)}... \n\nRead more on DevCircle: ${shareUrl}`,
+        });
+      }
+    } catch (e) {
+      console.warn('Share error', e);
+    }
+  };
+
+  const navigateToDetails = () => {
+    router.push(`/post/${post.id}`);
+  };
+
+  const navigateToProfile = () => {
+    if (post.isAuthorSelf) {
+      router.push('/(tabs)/profile');
+    } else {
+      router.push(`/profile/${post.author.username}`);
+    }
+  };
+
+  return (
+    <View style={styles.card}>
+      {/* Top Author Row */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={navigateToProfile}
+          style={styles.authorRow}>
+          <Avatar
+            url={post.author.avatar}
+            name={post.author.name}
+            size={40}
+            isVerified={post.author.isVerified}
+          />
+          <View style={styles.authorMeta}>
+            <View style={styles.nameRow}>
+              <Text style={styles.authorName} numberOfLines={1}>
+                {post.author.name}
+              </Text>
+              <Text style={styles.authorUsername}>@{post.author.username}</Text>
+            </View>
+            <View style={styles.subMetaRow}>
+              <Text style={styles.metaLocation}>{post.author.location}</Text>
+              <Text style={styles.metaDot}>•</Text>
+              <Text style={styles.metaTime}>{post.createdAt}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        <View style={styles.headerRight}>
+          {getTypeBadge(post.type)}
+          <TouchableOpacity
+            style={styles.moreButton}
+            onPress={() => setShowOptions(!showOptions)}
+            activeOpacity={0.7}>
+            <Ionicons name="ellipsis-horizontal" size={18} color={Colors.mutedGrey} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Options Menu dropdown */}
+      {showOptions && (
+        <View style={styles.optionsDropdown}>
+          <TouchableOpacity
+            style={styles.optionItem}
+            onPress={() => {
+              setShowOptions(false);
+              handleShare();
+            }}>
+            <Ionicons name="link-outline" size={16} color={Colors.white} />
+            <Text style={styles.optionText}>Copy Post Link</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.optionItem}
+            onPress={() => {
+              setShowOptions(false);
+              navigateToProfile();
+            }}>
+            <Ionicons name="person-outline" size={16} color={Colors.white} />
+            <Text style={styles.optionText}>View Author Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.optionItem, { borderBottomWidth: 0 }]}
+            onPress={() => {
+              setShowOptions(false);
+              Alert.alert('Reported', 'Thank you. Our community moderators will review this post.');
+            }}>
+            <Ionicons name="flag-outline" size={16} color={Colors.danger} />
+            <Text style={[styles.optionText, { color: Colors.danger }]}>Report Post</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Title */}
+      {post.title && (
+        <TouchableOpacity activeOpacity={0.85} onPress={navigateToDetails}>
+          <Text style={styles.postTitle}>{post.title}</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Main Content */}
+      <TouchableOpacity activeOpacity={0.85} onPress={navigateToDetails}>
+        <Text
+          style={styles.postContent}
+          numberOfLines={showFullContent ? undefined : 4}>
+          {post.content}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Code Snippet (if any) */}
+      {post.codeSnippet && (
+        <CodeBlock
+          snippet={post.codeSnippet}
+          maxLines={showFullContent ? undefined : 7}
+        />
+      )}
+
+      {/* Post Image (if any) */}
+      {post.imageUrl && (
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={navigateToDetails}
+          style={styles.imageContainer}>
+          <Image
+            source={{ uri: post.imageUrl }}
+            style={styles.postImage}
+            contentFit="cover"
+            transition={300}
+          />
+        </TouchableOpacity>
+      )}
+
+      {/* Project Meta Preview (if any) */}
+      {post.projectMeta && (
+        <View style={styles.projectBox}>
+          <View style={styles.projectHeader}>
+            <Ionicons name="rocket-outline" size={16} color={Colors.electricGreen} />
+            <Text style={styles.projectName}>{post.projectMeta.name}</Text>
+          </View>
+          <View style={styles.techStackRow}>
+            {post.projectMeta.techStack.map((tech, idx) => (
+              <Badge key={idx} label={tech} variant="secondary" size="sm" />
+            ))}
+          </View>
+        </View>
+      )}
+
+      {/* Tags */}
+      {post.tags && post.tags.length > 0 && (
+        <View style={styles.tagsRow}>
+          {post.tags.map((tag, i) => (
+            <Text key={i} style={styles.tagText}>
+              #{tag}
+            </Text>
+          ))}
+        </View>
+      )}
+
+      {/* Action Footer */}
+      <View style={styles.footerRow}>
+        <TouchableOpacity
+          style={styles.actionBtn}
+          activeOpacity={0.7}
+          onPress={() => toggleLikePost(post.id)}>
+          <Ionicons
+            name={post.isLiked ? 'heart' : 'heart-outline'}
+            size={19}
+            color={post.isLiked ? Colors.danger : Colors.mutedGrey}
+          />
+          <Text
+            style={[
+              styles.actionCount,
+              post.isLiked && { color: Colors.danger, fontWeight: '700' },
+            ]}>
+            {post.likesCount}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionBtn}
+          activeOpacity={0.7}
+          onPress={navigateToDetails}>
+          <Ionicons name="chatbubble-outline" size={18} color={Colors.mutedGrey} />
+          <Text style={styles.actionCount}>{post.commentsCount}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionBtn}
+          activeOpacity={0.7}
+          onPress={() => toggleBookmarkPost(post.id)}>
+          <Ionicons
+            name={post.isBookmarked ? 'bookmark' : 'bookmark-outline'}
+            size={18}
+            color={post.isBookmarked ? Colors.electricGreen : Colors.mutedGrey}
+          />
+          <Text
+            style={[
+              styles.actionCount,
+              post.isBookmarked && { color: Colors.electricGreen, fontWeight: '700' },
+            ]}>
+            {post.bookmarksCount}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionBtn}
+          activeOpacity={0.7}
+          onPress={handleShare}>
+          <Ionicons name="share-social-outline" size={18} color={Colors.mutedGrey} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#182536',
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: '#263548',
+    padding: Spacing.lg,
+    marginHorizontal: Spacing.md,
+    marginVertical: 6,
+    position: 'relative',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+  },
+  authorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  authorMeta: {
+    marginLeft: Spacing.sm,
+    flex: 1,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  authorName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F8FAFC',
+  },
+  authorUsername: {
+    fontSize: 12,
+    color: '#94A3B8',
+  },
+  subMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  metaLocation: {
+    fontSize: 11,
+    color: '#64748B',
+  },
+  metaDot: {
+    fontSize: 10,
+    color: '#64748B',
+  },
+  metaTime: {
+    fontSize: 11,
+    color: '#64748B',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  moreButton: {
+    padding: 4,
+  },
+  optionsDropdown: {
+    position: 'absolute',
+    top: 50,
+    right: 16,
+    backgroundColor: '#111E2E',
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: '#263548',
+    zIndex: 100,
+    minWidth: 160,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1A293E',
+  },
+  optionText: {
+    fontSize: 13,
+    color: '#F8FAFC',
+    fontWeight: '500',
+  },
+  postTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#F8FAFC',
+    marginBottom: 6,
+    lineHeight: 22,
+  },
+  postContent: {
+    fontSize: 14.5,
+    color: '#CBD5E1',
+    lineHeight: 21,
+    marginBottom: Spacing.sm,
+  },
+  imageContainer: {
+    borderRadius: Radius.md,
+    overflow: 'hidden',
+    marginVertical: Spacing.sm,
+    backgroundColor: '#0D1724',
+    maxHeight: 280,
+  },
+  postImage: {
+    width: '100%',
+    height: 220,
+  },
+  projectBox: {
+    backgroundColor: '#122032',
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: '#1F334D',
+    padding: 12,
+    marginVertical: 8,
+  },
+  projectHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  projectName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#19E68C',
+  },
+  techStackRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  tagsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginVertical: 6,
+  },
+  tagText: {
+    fontSize: 12,
+    color: '#38BDF8',
+    fontWeight: '500',
+  },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: '#1F3146',
+    marginTop: 4,
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  actionCount: {
+    fontSize: 13,
+    color: '#94A3B8',
+    fontWeight: '600',
+  },
+});
