@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { DevCircleLogo } from '@/components/DevCircleLogo';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
@@ -20,7 +20,7 @@ import { useDevCircle } from '@/context/DevCircleContext';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login } = useDevCircle();
+  const { login, colors } = useDevCircle();
 
   const [email, setEmail] = useState('kofi@devcircle.gh');
   const [password, setPassword] = useState('password123');
@@ -62,7 +62,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}>
@@ -72,8 +72,8 @@ export default function LoginScreen() {
           {/* Header & Logo */}
           <View style={styles.header}>
             <DevCircleLogo size="lg" showText={true} />
-            <Text style={styles.welcomeTitle}>Welcome Back</Text>
-            <Text style={styles.welcomeSubtitle}>
+            <Text style={[styles.welcomeTitle, { color: colors.text }]}>Welcome Back</Text>
+            <Text style={[styles.welcomeSubtitle, { color: colors.textSecondary }]}>
               Sign in to your DevCircle Ghana developer account
             </Text>
           </View>
@@ -82,7 +82,7 @@ export default function LoginScreen() {
           <View style={styles.form}>
             {error ? (
               <View style={styles.errorBox}>
-                <Ionicons name="alert-circle" size={18} color={Colors.danger} />
+                <Ionicons name="alert-circle" size={18} color={colors.danger} />
                 <Text style={styles.errorBannerText}>{error}</Text>
               </View>
             ) : null}
@@ -97,7 +97,7 @@ export default function LoginScreen() {
               }}
               keyboardType="email-address"
               autoCapitalize="none"
-              leftIcon={<Ionicons name="mail-outline" size={18} color={Colors.mutedGrey} />}
+              leftIcon={<Ionicons name="mail-outline" size={18} color={colors.textTertiary} />}
             />
 
             <Input
@@ -109,7 +109,7 @@ export default function LoginScreen() {
                 setError('');
               }}
               isPassword={true}
-              leftIcon={<Ionicons name="lock-closed-outline" size={18} color={Colors.mutedGrey} />}
+              leftIcon={<Ionicons name="lock-closed-outline" size={18} color={colors.textTertiary} />}
             />
 
             {/* Remember Me & Forgot Password */}
@@ -118,18 +118,25 @@ export default function LoginScreen() {
                 style={styles.rememberMeRow}
                 activeOpacity={0.7}
                 onPress={() => setRememberMe(!rememberMe)}>
-                <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                <View
+                  style={[
+                    styles.checkbox,
+                    {
+                      backgroundColor: rememberMe ? colors.primary : colors.inputBackground,
+                      borderColor: rememberMe ? colors.primary : colors.cardBorder,
+                    },
+                  ]}>
                   {rememberMe && (
-                    <Ionicons name="checkmark" size={13} color={Colors.deepNavy} />
+                    <Ionicons name="checkmark" size={13} color={colors.textInverse} />
                   )}
                 </View>
-                <Text style={styles.rememberMeText}>Remember me</Text>
+                <Text style={[styles.rememberMeText, { color: colors.textSecondary }]}>Remember me</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={() => router.push('/forgot-password')}
                 activeOpacity={0.7}>
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>Forgot Password?</Text>
               </TouchableOpacity>
             </View>
 
@@ -146,45 +153,69 @@ export default function LoginScreen() {
 
             {/* Quick Demo Login Pill */}
             <TouchableOpacity
-              style={styles.demoLoginBtn}
+              style={[
+                styles.demoLoginBtn,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.cardBorder,
+                },
+              ]}
               onPress={handleDemoSignIn}
               activeOpacity={0.8}>
-              <Ionicons name="flash" size={16} color={Colors.electricGreen} />
-              <Text style={styles.demoLoginText}>Instant Demo Sign In (Kofi Mensah)</Text>
+              <Ionicons name="flash" size={16} color={colors.primary} />
+              <Text style={[styles.demoLoginText, { color: colors.primary }]}>
+                Instant Demo Sign In (Kofi Mensah)
+              </Text>
             </TouchableOpacity>
 
             {/* Divider */}
             <View style={styles.dividerRow}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or continue with</Text>
-              <View style={styles.dividerLine} />
+              <View style={[styles.dividerLine, { backgroundColor: colors.cardBorder }]} />
+              <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or continue with</Text>
+              <View style={[styles.dividerLine, { backgroundColor: colors.cardBorder }]} />
             </View>
 
             {/* OAuth Buttons */}
             <View style={styles.oauthContainer}>
               <TouchableOpacity
-                style={styles.oauthButton}
+                style={[
+                  styles.oauthButton,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}
                 activeOpacity={0.7}
                 onPress={() => handleOAuthPlaceholder('GitHub')}>
-                <Ionicons name="logo-github" size={20} color={Colors.white} />
-                <Text style={styles.oauthButtonText}>GitHub</Text>
+                <Ionicons name="logo-github" size={20} color={colors.text} />
+                <Text style={[styles.oauthButtonText, { color: colors.text }]}>GitHub</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.oauthButton}
+                style={[
+                  styles.oauthButton,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}
                 activeOpacity={0.7}
                 onPress={() => handleOAuthPlaceholder('Google')}>
                 <Ionicons name="logo-google" size={19} color="#EA4335" />
-                <Text style={styles.oauthButtonText}>Google</Text>
+                <Text style={[styles.oauthButtonText, { color: colors.text }]}>Google</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Footer Create Account */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Do not have an account? </Text>
+            <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+              Do not have an account?{' '}
+            </Text>
             <TouchableOpacity onPress={() => router.push('/register')} activeOpacity={0.7}>
-              <Text style={styles.createAccountLink}>Create Account</Text>
+              <Text style={[styles.createAccountLink, { color: colors.primary }]}>
+                Create Account
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { useDevCircle } from '@/context/DevCircleContext';
 
 interface DevCircleLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -14,6 +14,7 @@ export const DevCircleLogo: React.FC<DevCircleLogoProps> = ({
   showText = true,
   textSize,
 }) => {
+  const { colors } = useDevCircle();
   const getDimensions = () => {
     switch (size) {
       case 'sm':
@@ -40,11 +41,13 @@ export const DevCircleLogo: React.FC<DevCircleLogoProps> = ({
             height: dim.boxSize,
             borderRadius: dim.boxSize * 0.32,
             borderWidth: dim.borderW,
+            backgroundColor: colors.inputBackground,
+            borderColor: colors.primary,
           },
         ]}>
         {/* Modern code bracket mark */}
         <View style={styles.innerMark}>
-          <Ionicons name="code-slash" size={dim.iconSize} color={Colors.electricGreen} />
+          <Ionicons name="code-slash" size={dim.iconSize} color={colors.primary} />
         </View>
         {/* Tech dot highlight */}
         <View
@@ -54,6 +57,8 @@ export const DevCircleLogo: React.FC<DevCircleLogoProps> = ({
               width: dim.boxSize * 0.22,
               height: dim.boxSize * 0.22,
               borderRadius: (dim.boxSize * 0.22) / 2,
+              backgroundColor: colors.primary,
+              borderColor: colors.background,
             },
           ]}
         />
@@ -61,8 +66,12 @@ export const DevCircleLogo: React.FC<DevCircleLogoProps> = ({
 
       {showText && (
         <View style={styles.textContainer}>
-          <Text style={[styles.brandText, { fontSize: textSize || dim.fontSize }]}>
-            Dev<Text style={styles.greenText}>Circle</Text>
+          <Text
+            style={[
+              styles.brandText,
+              { fontSize: textSize || dim.fontSize, color: colors.text },
+            ]}>
+            Dev<Text style={[styles.greenText, { color: colors.primary }]}>Circle</Text>
           </Text>
         </View>
       )}

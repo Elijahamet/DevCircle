@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { OpportunityCard } from '@/components/OpportunityCard';
 import { FilterPills, FilterItem } from '@/components/FilterPills';
 import { EmptyState } from '@/components/EmptyState';
@@ -28,7 +28,7 @@ const OPP_FILTERS: FilterItem[] = [
 
 export default function EventsScreen() {
   const router = useRouter();
-  const { opportunities } = useDevCircle();
+  const { opportunities, colors } = useDevCircle();
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   const filteredOpportunities = useMemo(() => {
@@ -37,23 +37,37 @@ export default function EventsScreen() {
   }, [opportunities, selectedFilter]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.headerBg,
+            borderBottomColor: colors.headerBorder,
+          },
+        ]}>
         <TouchableOpacity
           style={styles.backBtn}
           onPress={() => router.back()}
           activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={22} color={Colors.white} />
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Events & Opportunities</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Events & Opportunities</Text>
         <View style={{ width: 36 }} />
       </View>
 
       {/* Demonstration Banner */}
-      <View style={styles.demoNotice}>
-        <Ionicons name="information-circle-outline" size={16} color="#38BDF8" />
-        <Text style={styles.demoNoticeText}>
+      <View
+        style={[
+          styles.demoNotice,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.cardBorder,
+          },
+        ]}>
+        <Ionicons name="information-circle-outline" size={16} color={colors.info} />
+        <Text style={[styles.demoNoticeText, { color: colors.textSecondary }]}>
           Demonstration listings for Ghanaian tech events, meetups, internships and developer roles.
         </Text>
       </View>

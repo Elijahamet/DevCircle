@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { DevCircleLogo } from '@/components/DevCircleLogo';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
@@ -19,7 +19,7 @@ import { useDevCircle } from '@/context/DevCircleContext';
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { login, updateCurrentUser } = useDevCircle();
+  const { login, updateCurrentUser, colors } = useDevCircle();
 
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
@@ -71,7 +71,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}>
@@ -81,8 +81,8 @@ export default function RegisterScreen() {
           {/* Header */}
           <View style={styles.header}>
             <DevCircleLogo size="md" showText={true} />
-            <Text style={styles.title}>Join DevCircle</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: colors.text }]}>Join DevCircle</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               Connect with thousands of software engineers in Ghana
             </Text>
           </View>
@@ -91,7 +91,7 @@ export default function RegisterScreen() {
           <View style={styles.form}>
             {error ? (
               <View style={styles.errorBox}>
-                <Ionicons name="alert-circle" size={18} color={Colors.danger} />
+                <Ionicons name="alert-circle" size={18} color={colors.danger} />
                 <Text style={styles.errorBannerText}>{error}</Text>
               </View>
             ) : null}
@@ -104,7 +104,7 @@ export default function RegisterScreen() {
                 setFullName(t);
                 setError('');
               }}
-              leftIcon={<Ionicons name="person-outline" size={18} color={Colors.mutedGrey} />}
+              leftIcon={<Ionicons name="person-outline" size={18} color={colors.textTertiary} />}
             />
 
             <Input
@@ -116,7 +116,7 @@ export default function RegisterScreen() {
                 setError('');
               }}
               autoCapitalize="none"
-              leftIcon={<Ionicons name="at-outline" size={18} color={Colors.mutedGrey} />}
+              leftIcon={<Ionicons name="at-outline" size={18} color={colors.textTertiary} />}
             />
 
             <Input
@@ -129,7 +129,7 @@ export default function RegisterScreen() {
               }}
               keyboardType="email-address"
               autoCapitalize="none"
-              leftIcon={<Ionicons name="mail-outline" size={18} color={Colors.mutedGrey} />}
+              leftIcon={<Ionicons name="mail-outline" size={18} color={colors.textTertiary} />}
             />
 
             <Input
@@ -141,7 +141,7 @@ export default function RegisterScreen() {
                 setError('');
               }}
               isPassword={true}
-              leftIcon={<Ionicons name="lock-closed-outline" size={18} color={Colors.mutedGrey} />}
+              leftIcon={<Ionicons name="lock-closed-outline" size={18} color={colors.textTertiary} />}
             />
 
             <Input
@@ -153,7 +153,7 @@ export default function RegisterScreen() {
                 setError('');
               }}
               isPassword={true}
-              leftIcon={<Ionicons name="shield-checkmark-outline" size={18} color={Colors.mutedGrey} />}
+              leftIcon={<Ionicons name="shield-checkmark-outline" size={18} color={colors.textTertiary} />}
             />
 
             {/* Terms & Conditions Checkbox */}
@@ -161,12 +161,19 @@ export default function RegisterScreen() {
               style={styles.termsRow}
               activeOpacity={0.7}
               onPress={() => setAgreedToTerms(!agreedToTerms)}>
-              <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+              <View
+                style={[
+                  styles.checkbox,
+                  {
+                    backgroundColor: agreedToTerms ? colors.primary : colors.inputBackground,
+                    borderColor: agreedToTerms ? colors.primary : colors.cardBorder,
+                  },
+                ]}>
                 {agreedToTerms && (
-                  <Ionicons name="checkmark" size={13} color={Colors.deepNavy} />
+                  <Ionicons name="checkmark" size={13} color={colors.textInverse} />
                 )}
               </View>
-              <Text style={styles.termsText}>
+              <Text style={[styles.termsText, { color: colors.textSecondary }]}>
                 I agree to the{' '}
                 <Text style={styles.highlightText}>Terms of Service</Text>,{' '}
                 <Text style={styles.highlightText}>Privacy Policy</Text>, and{' '}
@@ -188,7 +195,7 @@ export default function RegisterScreen() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
+            <Text style={[styles.footerText, { color: colors.textSecondary }]}>Already have an account? </Text>
             <TouchableOpacity onPress={() => router.push('/login')} activeOpacity={0.7}>
               <Text style={styles.loginLink}>Sign In</Text>
             </TouchableOpacity>

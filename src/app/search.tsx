@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { Avatar } from '@/components/Avatar';
 import { PostCard } from '@/components/PostCard';
 import { ProjectCard } from '@/components/ProjectCard';
@@ -49,6 +49,7 @@ export default function SearchScreen() {
     clearRecentSearches,
     followingUserIds,
     toggleFollowUser,
+    colors,
   } = useDevCircle();
 
   const [query, setQuery] = useState(q || '');
@@ -119,22 +120,36 @@ export default function SearchScreen() {
     matchedEvents.length;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Search Input Bar */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.headerBg,
+            borderBottomColor: colors.headerBorder,
+          },
+        ]}>
         <TouchableOpacity
           style={styles.backBtn}
           onPress={() => router.back()}
           activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={22} color={Colors.white} />
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
 
-        <View style={styles.inputContainer}>
-          <Ionicons name="search-outline" size={18} color={Colors.mutedGrey} />
+        <View
+          style={[
+            styles.inputContainer,
+            {
+              backgroundColor: colors.inputBackground,
+              borderColor: colors.inputBorder,
+            },
+          ]}>
+          <Ionicons name="search-outline" size={18} color={colors.textSecondary} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search code, posts, people, jobs..."
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textTertiary}
             value={query}
             onChangeText={setQuery}
             onSubmitEditing={handleSearchSubmit}
@@ -143,7 +158,7 @@ export default function SearchScreen() {
           />
           {query.length > 0 && (
             <TouchableOpacity onPress={() => setQuery('')}>
-              <Ionicons name="close-circle" size={18} color="#64748B" />
+              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
         </View>

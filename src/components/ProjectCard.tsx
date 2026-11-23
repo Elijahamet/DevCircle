@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { Project } from '@/types';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
@@ -15,7 +15,7 @@ interface ProjectCardProps {
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const router = useRouter();
-  const { toggleLikeProject, toggleBookmarkProject } = useDevCircle();
+  const { toggleLikeProject, toggleBookmarkProject, colors } = useDevCircle();
 
   const openUrl = (url?: string) => {
     if (url) {
@@ -24,9 +24,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   };
 
   return (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.card,
+          borderColor: colors.cardBorder,
+        },
+      ]}>
       {/* Cover Image */}
-      <View style={styles.imageWrapper}>
+      <View style={[styles.imageWrapper, { backgroundColor: colors.backgroundSecondary }]}>
         <Image
           source={{ uri: project.coverImage }}
           style={styles.coverImage}
@@ -41,7 +48,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       <View style={styles.content}>
         {/* Title & Actions */}
         <View style={styles.titleRow}>
-          <Text style={styles.title}>{project.title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{project.title}</Text>
           <View style={styles.rightActions}>
             <TouchableOpacity
               onPress={() => toggleBookmarkProject(project.id)}
@@ -50,7 +57,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               <Ionicons
                 name={project.isBookmarked ? 'bookmark' : 'bookmark-outline'}
                 size={18}
-                color={project.isBookmarked ? Colors.electricGreen : Colors.mutedGrey}
+                color={project.isBookmarked ? colors.primary : colors.textSecondary}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -60,12 +67,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               <Ionicons
                 name={project.isLiked ? 'heart' : 'heart-outline'}
                 size={18}
-                color={project.isLiked ? Colors.danger : Colors.mutedGrey}
+                color={project.isLiked ? colors.danger : colors.textSecondary}
               />
               <Text
                 style={[
                   styles.likeCount,
-                  project.isLiked && { color: Colors.danger, fontWeight: '700' },
+                  { color: project.isLiked ? colors.danger : colors.textSecondary },
+                  project.isLiked && { fontWeight: '700' },
                 ]}>
                 {project.likesCount}
               </Text>
@@ -74,7 +82,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         </View>
 
         {/* Description */}
-        <Text style={styles.description} numberOfLines={3}>
+        <Text
+          style={[styles.description, { color: colors.textSecondary }]}
+          numberOfLines={3}>
           {project.description}
         </Text>
 
@@ -97,7 +107,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               size={24}
               isVerified={project.author.isVerified}
             />
-            <Text style={styles.authorName} numberOfLines={1}>
+            <Text
+              style={[styles.authorName, { color: colors.text }]}
+              numberOfLines={1}>
               {project.author.name}
             </Text>
           </TouchableOpacity>
@@ -107,9 +119,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               <TouchableOpacity
                 onPress={() => openUrl(project.githubUrl)}
                 activeOpacity={0.7}
-                style={styles.linkPill}>
-                <Ionicons name="logo-github" size={14} color={Colors.white} />
-                <Text style={styles.linkText}>Code</Text>
+                style={[
+                  styles.linkPill,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}>
+                <Ionicons name="logo-github" size={14} color={colors.text} />
+                <Text style={[styles.linkText, { color: colors.text }]}>Code</Text>
               </TouchableOpacity>
             )}
             {project.demoUrl && (
@@ -117,8 +135,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
                 onPress={() => openUrl(project.demoUrl)}
                 activeOpacity={0.7}
                 style={[styles.linkPill, styles.demoPill]}>
-                <Ionicons name="open-outline" size={13} color={Colors.deepNavy} />
-                <Text style={[styles.linkText, { color: Colors.deepNavy }]}>Demo</Text>
+                <Ionicons name="open-outline" size={13} color="#07111F" />
+                <Text style={[styles.linkText, { color: '#07111F' }]}>Demo</Text>
               </TouchableOpacity>
             )}
           </View>

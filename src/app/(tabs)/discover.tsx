@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { AppHeader } from '@/components/AppHeader';
 import { Avatar } from '@/components/Avatar';
 import { ProjectCard } from '@/components/ProjectCard';
@@ -19,7 +19,7 @@ import { CATEGORIES_LIST } from '@/data/mockData';
 
 export default function DiscoverScreen() {
   const router = useRouter();
-  const { users, projects, followingUserIds, toggleFollowUser } = useDevCircle();
+  const { users, projects, followingUserIds, toggleFollowUser, colors } = useDevCircle();
   const [quickQuery, setQuickQuery] = useState('');
 
   const trendingTopics = [
@@ -42,7 +42,7 @@ export default function DiscoverScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <AppHeader />
 
       <ScrollView
@@ -51,14 +51,20 @@ export default function DiscoverScreen() {
         {/* Search Bar Tap Trigger */}
         <View style={styles.searchContainer}>
           <TouchableOpacity
-            style={styles.searchBar}
+            style={[
+              styles.searchBar,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.inputBorder,
+              },
+            ]}
             activeOpacity={0.85}
             onPress={handleSearchSubmit}>
-            <Ionicons name="search-outline" size={18} color={Colors.mutedGrey} />
+            <Ionicons name="search-outline" size={18} color={colors.textSecondary} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder="Search Ghanaian devs, projects, tech stacks..."
-              placeholderTextColor={Colors.mutedGrey}
+              placeholderTextColor={colors.textTertiary}
               value={quickQuery}
               onChangeText={setQuickQuery}
               onSubmitEditing={handleSearchSubmit}
@@ -66,7 +72,7 @@ export default function DiscoverScreen() {
             />
             {quickQuery.length > 0 && (
               <TouchableOpacity onPress={() => setQuickQuery('')}>
-                <Ionicons name="close-circle" size={16} color={Colors.mutedGrey} />
+                <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
               </TouchableOpacity>
             )}
           </TouchableOpacity>
@@ -75,31 +81,57 @@ export default function DiscoverScreen() {
         {/* Quick Nav Badges: Projects & Events */}
         <View style={styles.hubNavRow}>
           <TouchableOpacity
-            style={styles.hubCard}
+            style={[
+              styles.hubCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}
             activeOpacity={0.8}
             onPress={() => router.push('/projects')}>
             <View style={[styles.hubIconBg, { backgroundColor: 'rgba(25, 230, 140, 0.12)' }]}>
-              <Ionicons name="rocket" size={20} color="#19E68C" />
+              <Ionicons name="rocket" size={20} color={colors.primary} />
             </View>
             <View>
-              <Text style={styles.hubTitle}>Project Showcase</Text>
-              <Text style={styles.hubSubtitle}>Explore what Ghanaian devs build</Text>
+              <Text style={[styles.hubTitle, { color: colors.text }]}>Project Showcase</Text>
+              <Text style={[styles.hubSubtitle, { color: colors.textSecondary }]}>
+                Explore what Ghanaian devs build
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#64748B" style={{ marginLeft: 'auto' }} />
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={colors.textTertiary}
+              style={{ marginLeft: 'auto' }}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.hubCard}
+            style={[
+              styles.hubCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}
             activeOpacity={0.8}
             onPress={() => router.push('/events')}>
             <View style={[styles.hubIconBg, { backgroundColor: 'rgba(56, 189, 248, 0.12)' }]}>
-              <Ionicons name="calendar" size={20} color="#38BDF8" />
+              <Ionicons name="calendar" size={20} color={colors.info} />
             </View>
             <View>
-              <Text style={styles.hubTitle}>Events & Opportunities</Text>
-              <Text style={styles.hubSubtitle}>Hackathons, meetups & jobs</Text>
+              <Text style={[styles.hubTitle, { color: colors.text }]}>Events & Opportunities</Text>
+              <Text style={[styles.hubSubtitle, { color: colors.textSecondary }]}>
+                Hackathons, meetups & jobs
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#64748B" style={{ marginLeft: 'auto' }} />
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={colors.textTertiary}
+              style={{ marginLeft: 'auto' }}
+            />
           </TouchableOpacity>
         </View>
 
@@ -107,10 +139,12 @@ export default function DiscoverScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
-              <Ionicons name="people" size={18} color="#19E68C" />
-              <Text style={styles.sectionTitle}>Suggested Developers</Text>
+              <Ionicons name="people" size={18} color={colors.primary} />
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Suggested Developers
+              </Text>
             </View>
-            <Text style={styles.sectionBadge}>GHANA TECH</Text>
+            <Text style={[styles.sectionBadge, { color: colors.primary }]}>GHANA TECH</Text>
           </View>
 
           <ScrollView
@@ -120,7 +154,15 @@ export default function DiscoverScreen() {
             {popularUsers.map((user) => {
               const isFollowing = followingUserIds.includes(user.id);
               return (
-                <View key={user.id} style={styles.userCard}>
+                <View
+                  key={user.id}
+                  style={[
+                    styles.userCard,
+                    {
+                      backgroundColor: colors.card,
+                      borderColor: colors.cardBorder,
+                    },
+                  ]}>
                   <TouchableOpacity
                     onPress={() => router.push(`/profile/${user.username}`)}
                     style={styles.userCardAvatar}>
@@ -134,33 +176,53 @@ export default function DiscoverScreen() {
 
                   <TouchableOpacity
                     onPress={() => router.push(`/profile/${user.username}`)}>
-                    <Text style={styles.userCardName} numberOfLines={1}>
+                    <Text
+                      style={[styles.userCardName, { color: colors.text }]}
+                      numberOfLines={1}>
                       {user.name}
                     </Text>
-                    <Text style={styles.userCardUsername} numberOfLines={1}>
+                    <Text
+                      style={[styles.userCardUsername, { color: colors.textSecondary }]}
+                      numberOfLines={1}>
                       @{user.username}
                     </Text>
                   </TouchableOpacity>
 
-                  <Text style={styles.userCardRole} numberOfLines={2}>
+                  <Text
+                    style={[styles.userCardRole, { color: colors.textSecondary }]}
+                    numberOfLines={2}>
                     {user.role}
                   </Text>
 
-                  <Text style={styles.userCardLocation} numberOfLines={1}>
+                  <Text
+                    style={[styles.userCardLocation, { color: colors.textTertiary }]}
+                    numberOfLines={1}>
                     📍 {user.location}
                   </Text>
 
                   <TouchableOpacity
                     style={[
                       styles.followBtn,
-                      isFollowing && styles.followingBtn,
+                      isFollowing
+                        ? [
+                            styles.followingBtn,
+                            {
+                              backgroundColor: colors.inputBackground,
+                              borderColor: colors.cardBorder,
+                            },
+                          ]
+                        : { backgroundColor: colors.primary },
                     ]}
                     activeOpacity={0.7}
                     onPress={() => toggleFollowUser(user.id)}>
                     <Text
                       style={[
                         styles.followBtnText,
-                        isFollowing && styles.followingBtnText,
+                        {
+                          color: isFollowing
+                            ? colors.textSecondary
+                            : colors.textInverse,
+                        },
                       ]}>
                       {isFollowing ? 'Following' : 'Follow'}
                     </Text>
@@ -175,8 +237,10 @@ export default function DiscoverScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
-              <Ionicons name="trending-up" size={18} color="#38BDF8" />
-              <Text style={styles.sectionTitle}>Trending in Ghana</Text>
+              <Ionicons name="trending-up" size={18} color={colors.primary} />
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Trending in Ghana
+              </Text>
             </View>
           </View>
 
@@ -184,12 +248,22 @@ export default function DiscoverScreen() {
             {trendingTopics.map((item, idx) => (
               <TouchableOpacity
                 key={idx}
-                style={styles.topicCard}
+                style={[
+                  styles.topicCard,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}
                 activeOpacity={0.7}
                 onPress={() => router.push(`/search?q=${item.tag}`)}>
                 <View style={styles.topicRow}>
-                  <Text style={styles.topicTag}>#{item.tag}</Text>
-                  <Text style={styles.topicCount}>{item.count}</Text>
+                  <Text style={[styles.topicTag, { color: colors.primary }]}>
+                    #{item.tag}
+                  </Text>
+                  <Text style={[styles.topicCount, { color: colors.textTertiary }]}>
+                    {item.count}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -200,8 +274,10 @@ export default function DiscoverScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
-              <Ionicons name="grid-outline" size={18} color="#A855F7" />
-              <Text style={styles.sectionTitle}>Explore by Category</Text>
+              <Ionicons name="grid-outline" size={18} color={colors.purple} />
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Explore by Category
+              </Text>
             </View>
           </View>
 
@@ -209,18 +285,28 @@ export default function DiscoverScreen() {
             {CATEGORIES_LIST.map((cat) => (
               <TouchableOpacity
                 key={cat.id}
-                style={styles.categoryCard}
+                style={[
+                  styles.categoryCard,
+                  {
+                    backgroundColor: colors.card,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}
                 activeOpacity={0.8}
                 onPress={() => router.push(`/search?q=${encodeURIComponent(cat.name)}`)}>
                 <View style={[styles.catIconWrap, { backgroundColor: `${cat.color}18` }]}>
                   <Ionicons name={cat.icon as any} size={22} color={cat.color} />
                 </View>
-                <Text style={styles.catName}>{cat.name}</Text>
-                <Text style={styles.catDesc} numberOfLines={2}>
+                <Text style={[styles.catName, { color: colors.text }]}>{cat.name}</Text>
+                <Text
+                  style={[styles.catDesc, { color: colors.textSecondary }]}
+                  numberOfLines={2}>
                   {cat.description}
                 </Text>
                 <View style={styles.catFooter}>
-                  <Text style={styles.catTopics}>{cat.topicsCount} discussions</Text>
+                  <Text style={[styles.catTopics, { color: colors.textTertiary }]}>
+                    {cat.topicsCount} discussions
+                  </Text>
                   <Ionicons name="arrow-forward" size={12} color={cat.color} />
                 </View>
               </TouchableOpacity>
@@ -232,11 +318,15 @@ export default function DiscoverScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
-              <Ionicons name="sparkles" size={18} color="#19E68C" />
-              <Text style={styles.sectionTitle}>Popular Projects</Text>
+              <Ionicons name="sparkles" size={18} color={colors.primary} />
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Popular Projects
+              </Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/projects')}>
-              <Text style={styles.seeAllText}>View All ({projects.length})</Text>
+              <Text style={[styles.seeAllText, { color: colors.primary }]}>
+                View All ({projects.length})
+              </Text>
             </TouchableOpacity>
           </View>
 

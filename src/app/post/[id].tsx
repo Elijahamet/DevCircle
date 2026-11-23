@@ -15,7 +15,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { CodeBlock } from '@/components/CodeBlock';
@@ -33,6 +33,7 @@ export default function PostDetailsScreen() {
     toggleBookmarkPost,
     addComment,
     deleteComment,
+    colors,
   } = useDevCircle();
 
   const [commentText, setCommentText] = useState('');
@@ -58,7 +59,7 @@ export default function PostDetailsScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={22} color={Colors.white} />
+            <Ionicons name="arrow-back" size={22} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Post Details</Text>
           <View style={{ width: 36 }} />
@@ -127,24 +128,31 @@ export default function PostDetailsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}>
         {/* Top Header */}
-        <View style={styles.header}>
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.headerBg,
+              borderBottomColor: colors.headerBorder,
+            },
+          ]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backBtn}
             activeOpacity={0.7}>
-            <Ionicons name="arrow-back" size={22} color={Colors.white} />
+            <Ionicons name="arrow-back" size={22} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Discussion</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Discussion</Text>
           <TouchableOpacity
             onPress={handleShare}
             style={styles.headerActionBtn}
             activeOpacity={0.7}>
-            <Ionicons name="share-social-outline" size={20} color={Colors.white} />
+            <Ionicons name="share-social-outline" size={20} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -153,7 +161,14 @@ export default function PostDetailsScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled">
           {/* Main Post Container */}
-          <View style={styles.postCard}>
+          <View
+            style={[
+              styles.postCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}>
             {/* Author Row */}
             <TouchableOpacity
               style={styles.authorRow}
@@ -167,22 +182,36 @@ export default function PostDetailsScreen() {
               />
               <View style={styles.authorMeta}>
                 <View style={styles.nameRow}>
-                  <Text style={styles.authorName}>{post.author.name}</Text>
-                  <Text style={styles.authorUsername}>@{post.author.username}</Text>
+                  <Text style={[styles.authorName, { color: colors.text }]}>
+                    {post.author.name}
+                  </Text>
+                  <Text style={[styles.authorUsername, { color: colors.textSecondary }]}>
+                    @{post.author.username}
+                  </Text>
                 </View>
                 <View style={styles.subMetaRow}>
-                  <Text style={styles.metaLocation}>{post.author.location}</Text>
-                  <Text style={styles.metaDot}>•</Text>
-                  <Text style={styles.metaTime}>{post.createdAt}</Text>
+                  <Text style={[styles.metaLocation, { color: colors.textTertiary }]}>
+                    {post.author.location}
+                  </Text>
+                  <Text style={[styles.metaDot, { color: colors.textTertiary }]}>•</Text>
+                  <Text style={[styles.metaTime, { color: colors.textTertiary }]}>
+                    {post.createdAt}
+                  </Text>
                 </View>
               </View>
             </TouchableOpacity>
 
             {/* Post Title */}
-            {post.title && <Text style={styles.postTitle}>{post.title}</Text>}
+            {post.title && (
+              <Text style={[styles.postTitle, { color: colors.text }]}>
+                {post.title}
+              </Text>
+            )}
 
             {/* Full Post Content */}
-            <Text style={styles.postContent}>{post.content}</Text>
+            <Text style={[styles.postContent, { color: colors.text }]}>
+              {post.content}
+            </Text>
 
             {/* Code Snippet (if any) */}
             {post.codeSnippet && (
@@ -191,7 +220,7 @@ export default function PostDetailsScreen() {
 
             {/* Image (if any) */}
             {post.imageUrl && (
-              <View style={styles.imageContainer}>
+              <View style={[styles.imageContainer, { borderColor: colors.cardBorder }]}>
                 <Image
                   source={{ uri: post.imageUrl }}
                   style={styles.postImage}
@@ -203,10 +232,19 @@ export default function PostDetailsScreen() {
 
             {/* Project Meta Preview */}
             {post.projectMeta && (
-              <View style={styles.projectBox}>
+              <View
+                style={[
+                  styles.projectBox,
+                  {
+                    backgroundColor: colors.backgroundSecondary,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}>
                 <View style={styles.projectHeader}>
-                  <Ionicons name="rocket-outline" size={16} color={Colors.electricGreen} />
-                  <Text style={styles.projectName}>{post.projectMeta.name}</Text>
+                  <Ionicons name="rocket-outline" size={16} color={colors.primary} />
+                  <Text style={[styles.projectName, { color: colors.primary }]}>
+                    {post.projectMeta.name}
+                  </Text>
                 </View>
                 <View style={styles.techStackRow}>
                   {post.projectMeta.techStack.map((tech, idx) => (
@@ -220,7 +258,7 @@ export default function PostDetailsScreen() {
             {post.tags && post.tags.length > 0 && (
               <View style={styles.tagsRow}>
                 {post.tags.map((tag, i) => (
-                  <Text key={i} style={styles.tagText}>
+                  <Text key={i} style={[styles.tagText, { color: colors.primary }]}>
                     #{tag}
                   </Text>
                 ))}
@@ -228,7 +266,7 @@ export default function PostDetailsScreen() {
             )}
 
             {/* Post Actions Bar */}
-            <View style={styles.actionBar}>
+            <View style={[styles.actionBar, { borderTopColor: colors.cardBorder }]}>
               <TouchableOpacity
                 style={styles.actionBtn}
                 activeOpacity={0.7}
@@ -236,20 +274,23 @@ export default function PostDetailsScreen() {
                 <Ionicons
                   name={post.isLiked ? 'heart' : 'heart-outline'}
                   size={20}
-                  color={post.isLiked ? Colors.danger : Colors.mutedGrey}
+                  color={post.isLiked ? colors.danger : colors.textSecondary}
                 />
                 <Text
                   style={[
                     styles.actionCount,
-                    post.isLiked && { color: Colors.danger, fontWeight: '700' },
+                    { color: post.isLiked ? colors.danger : colors.textSecondary },
+                    post.isLiked && { fontWeight: '700' },
                   ]}>
                   {post.likesCount}
                 </Text>
               </TouchableOpacity>
 
               <View style={styles.actionBtn}>
-                <Ionicons name="chatbubble-outline" size={19} color={Colors.mutedGrey} />
-                <Text style={styles.actionCount}>{post.commentsCount}</Text>
+                <Ionicons name="chatbubble-outline" size={19} color={colors.textSecondary} />
+                <Text style={[styles.actionCount, { color: colors.textSecondary }]}>
+                  {post.commentsCount}
+                </Text>
               </View>
 
               <TouchableOpacity
@@ -259,12 +300,13 @@ export default function PostDetailsScreen() {
                 <Ionicons
                   name={post.isBookmarked ? 'bookmark' : 'bookmark-outline'}
                   size={19}
-                  color={post.isBookmarked ? Colors.electricGreen : Colors.mutedGrey}
+                  color={post.isBookmarked ? colors.primary : colors.textSecondary}
                 />
                 <Text
                   style={[
                     styles.actionCount,
-                    post.isBookmarked && { color: Colors.electricGreen, fontWeight: '700' },
+                    { color: post.isBookmarked ? colors.primary : colors.textSecondary },
+                    post.isBookmarked && { fontWeight: '700' },
                   ]}>
                   {post.bookmarksCount}
                 </Text>
@@ -274,24 +316,30 @@ export default function PostDetailsScreen() {
                 style={styles.actionBtn}
                 activeOpacity={0.7}
                 onPress={handleShare}>
-                <Ionicons name="share-social-outline" size={19} color={Colors.mutedGrey} />
+                <Ionicons name="share-social-outline" size={19} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Comments Header & Sort Filter */}
           <View style={styles.commentsSectionHeader}>
-            <Text style={styles.commentsTitle}>
+            <Text style={[styles.commentsTitle, { color: colors.text }]}>
               Comments ({post.comments.length})
             </Text>
 
             <TouchableOpacity
-              style={styles.sortBtn}
+              style={[
+                styles.sortBtn,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.cardBorder,
+                },
+              ]}
               onPress={() =>
                 setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
               }>
-              <Ionicons name="swap-vertical" size={14} color="#94A3B8" />
-              <Text style={styles.sortText}>
+              <Ionicons name="swap-vertical" size={14} color={colors.textSecondary} />
+              <Text style={[styles.sortText, { color: colors.textSecondary }]}>
                 {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
               </Text>
             </TouchableOpacity>
@@ -304,7 +352,15 @@ export default function PostDetailsScreen() {
               const likeCount = (comment.likesCount || 0) + (commentLikes[comment.id] && !comment.isLiked ? 1 : 0);
 
               return (
-                <View key={comment.id} style={styles.commentItem}>
+                <View
+                  key={comment.id}
+                  style={[
+                    styles.commentItem,
+                    {
+                      backgroundColor: colors.card,
+                      borderColor: colors.cardBorder,
+                    },
+                  ]}>
                   <TouchableOpacity
                     onPress={() =>
                       navigateToProfile(comment.author.username, comment.isAuthorSelf)
@@ -323,14 +379,18 @@ export default function PostDetailsScreen() {
                         onPress={() =>
                           navigateToProfile(comment.author.username, comment.isAuthorSelf)
                         }>
-                        <Text style={styles.commentAuthorName}>
+                        <Text style={[styles.commentAuthorName, { color: colors.text }]}>
                           {comment.author.name}
                         </Text>
                       </TouchableOpacity>
-                      <Text style={styles.commentTime}>{comment.createdAt}</Text>
+                      <Text style={[styles.commentTime, { color: colors.textTertiary }]}>
+                        {comment.createdAt}
+                      </Text>
                     </View>
 
-                    <Text style={styles.commentContent}>{comment.content}</Text>
+                    <Text style={[styles.commentContent, { color: colors.text }]}>
+                      {comment.content}
+                    </Text>
 
                     <View style={styles.commentActionsRow}>
                       <TouchableOpacity
@@ -339,12 +399,13 @@ export default function PostDetailsScreen() {
                         <Ionicons
                           name={isLiked ? 'heart' : 'heart-outline'}
                           size={15}
-                          color={isLiked ? Colors.danger : Colors.mutedGrey}
+                          color={isLiked ? colors.danger : colors.textSecondary}
                         />
                         <Text
                           style={[
                             styles.commentActionText,
-                            isLiked && { color: Colors.danger, fontWeight: '700' },
+                            { color: isLiked ? colors.danger : colors.textSecondary },
+                            isLiked && { fontWeight: '700' },
                           ]}>
                           {likeCount > 0 ? likeCount : ''}
                         </Text>
@@ -353,7 +414,9 @@ export default function PostDetailsScreen() {
                       <TouchableOpacity
                         style={styles.commentAction}
                         onPress={() => setReplyingTo(comment)}>
-                        <Text style={styles.commentActionText}>Reply</Text>
+                        <Text style={[styles.commentActionText, { color: colors.textSecondary }]}>
+                          Reply
+                        </Text>
                       </TouchableOpacity>
 
                       {/* If comment authored by current user, show delete */}
@@ -388,8 +451,8 @@ export default function PostDetailsScreen() {
             })
           ) : (
             <View style={styles.emptyCommentsBox}>
-              <Ionicons name="chatbubble-ellipses-outline" size={28} color="#64748B" />
-              <Text style={styles.emptyCommentsText}>
+              <Ionicons name="chatbubble-ellipses-outline" size={28} color={colors.textTertiary} />
+              <Text style={[styles.emptyCommentsText, { color: colors.textSecondary }]}>
                 No comments yet. Start the conversation!
               </Text>
             </View>
@@ -398,31 +461,52 @@ export default function PostDetailsScreen() {
 
         {/* Reply Indicator Banner */}
         {replyingTo && (
-          <View style={styles.replyBanner}>
-            <Text style={styles.replyBannerText}>
-              Replying to <Text style={{ color: '#19E68C' }}>@{replyingTo.author.username}</Text>
+          <View
+            style={[
+              styles.replyBanner,
+              {
+                backgroundColor: colors.inputBackground,
+                borderTopColor: colors.cardBorder,
+              },
+            ]}>
+            <Text style={[styles.replyBannerText, { color: colors.text }]}>
+              Replying to <Text style={{ color: colors.primary }}>@{replyingTo.author.username}</Text>
             </Text>
             <TouchableOpacity onPress={() => setReplyingTo(null)}>
-              <Ionicons name="close-circle" size={18} color="#94A3B8" />
+              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
         )}
 
         {/* Fixed Comment Input Bar */}
-        <View style={styles.inputBar}>
+        <View
+          style={[
+            styles.inputBar,
+            {
+              backgroundColor: colors.headerBg,
+              borderTopColor: colors.cardBorder,
+            },
+          ]}>
           <Avatar
             url={currentUser.avatar}
             name={currentUser.name}
             size={34}
           />
           <TextInput
-            style={styles.textInput}
+            style={[
+              styles.textInput,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.inputBorder,
+                color: colors.text,
+              },
+            ]}
             placeholder={
               replyingTo
                 ? `Reply to @${replyingTo.author.username}...`
                 : 'Write a technical response...'
             }
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textTertiary}
             value={commentText}
             onChangeText={setCommentText}
             multiline={true}
@@ -430,14 +514,18 @@ export default function PostDetailsScreen() {
           <TouchableOpacity
             style={[
               styles.sendBtn,
-              commentText.trim().length > 0 && styles.sendBtnActive,
+              commentText.trim().length > 0
+                ? { backgroundColor: colors.primary }
+                : { backgroundColor: colors.inputBackground },
             ]}
             onPress={handleSendComment}
             disabled={!commentText.trim()}>
             <Ionicons
               name="send"
               size={16}
-              color={commentText.trim().length > 0 ? '#07111F' : '#64748B'}
+              color={
+                commentText.trim().length > 0 ? colors.textInverse : colors.textTertiary
+              }
             />
           </TouchableOpacity>
         </View>

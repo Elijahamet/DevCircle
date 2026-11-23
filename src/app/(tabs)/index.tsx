@@ -10,7 +10,7 @@ import {
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { AppHeader } from '@/components/AppHeader';
 import { FilterPills, FilterItem } from '@/components/FilterPills';
 import { PostCard } from '@/components/PostCard';
@@ -30,7 +30,7 @@ const FEED_FILTERS: FilterItem[] = [
 
 export default function HomeFeedScreen() {
   const router = useRouter();
-  const { posts, followingUserIds } = useDevCircle();
+  const { posts, followingUserIds, colors } = useDevCircle();
   const [selectedFilter, setSelectedFilter] = useState<string>('for_you');
   const [refreshing, setRefreshing] = useState(false);
   const [showFeaturedBanner, setShowFeaturedBanner] = useState(true);
@@ -62,50 +62,69 @@ export default function HomeFeedScreen() {
     <View style={styles.listHeaderContainer}>
       {/* Featured Community Banner */}
       {showFeaturedBanner && (
-        <View style={styles.featuredCard}>
+        <View
+          style={[
+            styles.featuredCard,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.cardBorder,
+            },
+          ]}>
           <View style={styles.featuredLeft}>
             <View style={styles.featuredBadge}>
-              <Ionicons name="sparkles" size={12} color="#19E68C" />
-              <Text style={styles.featuredBadgeText}>FEATURED COMMUNITY EVENT</Text>
+              <Ionicons name="sparkles" size={12} color={colors.primary} />
+              <Text style={[styles.featuredBadgeText, { color: colors.primary }]}>
+                FEATURED COMMUNITY EVENT
+              </Text>
             </View>
-            <Text style={styles.featuredTitle}>Accra DevFest 2026</Text>
-            <Text style={styles.featuredSubtitle}>
+            <Text style={[styles.featuredTitle, { color: colors.text }]}>
+              Accra DevFest 2026
+            </Text>
+            <Text
+              style={[
+                styles.featuredSubtitle,
+                { color: colors.textSecondary },
+              ]}>
               Join over 1,500 Ghanaian developers at the Accra Int. Conference Centre!
             </Text>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => router.push('/events')}
-              style={styles.featuredCta}>
-              <Text style={styles.featuredCtaText}>Explore Events</Text>
-              <Ionicons name="arrow-forward" size={13} color="#07111F" />
+              style={[styles.featuredCta, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.featuredCtaText, { color: colors.textInverse }]}>
+                Explore Events
+              </Text>
+              <Ionicons name="arrow-forward" size={13} color={colors.textInverse} />
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity
             onPress={() => setShowFeaturedBanner(false)}
             style={styles.closeBannerBtn}>
-            <Ionicons name="close" size={16} color="#64748B" />
+            <Ionicons name="close" size={16} color={colors.textTertiary} />
           </TouchableOpacity>
         </View>
       )}
 
       {/* Quick stats or notice */}
       <View style={styles.feedStatusRow}>
-        <Text style={styles.feedStatusText}>
+        <Text style={[styles.feedStatusText, { color: colors.textTertiary }]}>
           Showing {filteredPosts.length} discussions in Ghana Tech
         </Text>
         <TouchableOpacity
           onPress={() => router.push('/(tabs)/create')}
           style={styles.quickPostRow}>
-          <Ionicons name="create-outline" size={14} color="#19E68C" />
-          <Text style={styles.quickPostText}>New Post</Text>
+          <Ionicons name="create-outline" size={14} color={colors.primary} />
+          <Text style={[styles.quickPostText, { color: colors.primary }]}>
+            New Post
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* App Header */}
       <AppHeader />
 
@@ -129,9 +148,9 @@ export default function HomeFeedScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={Colors.electricGreen}
-              colors={[Colors.electricGreen]}
-              progressBackgroundColor="#182536"
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.card}
             />
           }
           ListEmptyComponent={

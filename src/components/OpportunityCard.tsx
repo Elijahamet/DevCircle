@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { Opportunity, OpportunityType } from '@/types';
 import { Badge } from './Badge';
 import { useDevCircle } from '@/context/DevCircleContext';
@@ -11,7 +11,7 @@ interface OpportunityCardProps {
 }
 
 export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity }) => {
-  const { toggleBookmarkOpportunity } = useDevCircle();
+  const { toggleBookmarkOpportunity, colors } = useDevCircle();
 
   const getTypeBadge = (type: OpportunityType) => {
     switch (type) {
@@ -42,7 +42,14 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
   };
 
   return (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.card,
+          borderColor: colors.cardBorder,
+        },
+      ]}>
       <View style={styles.header}>
         <View style={styles.typeRow}>
           {getTypeBadge(opportunity.type)}
@@ -50,9 +57,11 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
             <Ionicons
               name={opportunity.isOnline ? 'globe-outline' : 'location-outline'}
               size={13}
-              color={Colors.mutedGrey}
+              color={colors.textSecondary}
             />
-            <Text style={styles.locationText} numberOfLines={1}>
+            <Text
+              style={[styles.locationText, { color: colors.textSecondary }]}
+              numberOfLines={1}>
               {opportunity.location}
             </Text>
           </View>
@@ -65,23 +74,29 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
           <Ionicons
             name={opportunity.isBookmarked ? 'bookmark' : 'bookmark-outline'}
             size={18}
-            color={opportunity.isBookmarked ? Colors.electricGreen : Colors.mutedGrey}
+            color={opportunity.isBookmarked ? colors.primary : colors.textSecondary}
           />
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>{opportunity.title}</Text>
-      <Text style={styles.organization}>{opportunity.organization}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{opportunity.title}</Text>
+      <Text style={[styles.organization, { color: colors.textSecondary }]}>
+        {opportunity.organization}
+      </Text>
 
-      <Text style={styles.description} numberOfLines={2}>
+      <Text
+        style={[styles.description, { color: colors.textSecondary }]}
+        numberOfLines={2}>
         {opportunity.description}
       </Text>
 
       {/* Date & Tags row */}
       <View style={styles.footer}>
         <View style={styles.dateRow}>
-          <Ionicons name="calendar-outline" size={14} color={Colors.electricGreen} />
-          <Text style={styles.dateText}>{opportunity.dateOrDeadline}</Text>
+          <Ionicons name="calendar-outline" size={14} color={colors.primary} />
+          <Text style={[styles.dateText, { color: colors.primary }]}>
+            {opportunity.dateOrDeadline}
+          </Text>
         </View>
 
         <TouchableOpacity
@@ -89,7 +104,7 @@ export const OpportunityCard: React.FC<OpportunityCardProps> = ({ opportunity })
           activeOpacity={0.7}
           onPress={handleOpen}>
           <Text style={styles.detailsText}>View Details</Text>
-          <Ionicons name="arrow-forward" size={13} color={Colors.deepNavy} />
+          <Ionicons name="arrow-forward" size={13} color="#07111F" />
         </TouchableOpacity>
       </View>
     </View>

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { Avatar } from '@/components/Avatar';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
@@ -20,7 +20,7 @@ import { useDevCircle } from '@/context/DevCircleContext';
 
 export default function EditProfileScreen() {
   const router = useRouter();
-  const { currentUser, updateCurrentUser } = useDevCircle();
+  const { currentUser, updateCurrentUser, colors } = useDevCircle();
 
   const [avatar, setAvatar] = useState(currentUser.avatar);
   const [name, setName] = useState(currentUser.name);
@@ -79,20 +79,27 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}>
         {/* Header */}
-        <View style={styles.header}>
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.headerBg,
+              borderBottomColor: colors.headerBorder,
+            },
+          ]}>
           <TouchableOpacity
             style={styles.cancelBtn}
             onPress={() => router.back()}
             activeOpacity={0.7}>
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancel</Text>
           </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>Edit Profile</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Edit Profile</Text>
 
           <Button
             title="Save"
@@ -119,7 +126,7 @@ export default function EditProfileScreen() {
             onChangeText={setAvatar}
             placeholder="https://..."
             autoCapitalize="none"
-            leftIcon={<Ionicons name="image-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="image-outline" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -127,7 +134,7 @@ export default function EditProfileScreen() {
             value={name}
             onChangeText={setName}
             placeholder="e.g. Kofi Mensah"
-            leftIcon={<Ionicons name="person-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="person-outline" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -136,7 +143,7 @@ export default function EditProfileScreen() {
             onChangeText={(t) => setUsername(t.replace(/\s+/g, '').toLowerCase())}
             placeholder="e.g. koficodes"
             autoCapitalize="none"
-            leftIcon={<Ionicons name="at-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="at-outline" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -144,7 +151,7 @@ export default function EditProfileScreen() {
             value={role}
             onChangeText={setRole}
             placeholder="e.g. Senior Full-Stack Engineer"
-            leftIcon={<Ionicons name="briefcase-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="briefcase-outline" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -152,7 +159,7 @@ export default function EditProfileScreen() {
             value={location}
             onChangeText={setLocation}
             placeholder="e.g. Accra, Ghana 🇬🇭"
-            leftIcon={<Ionicons name="location-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="location-outline" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -170,7 +177,7 @@ export default function EditProfileScreen() {
             value={skills}
             onChangeText={setSkills}
             placeholder="TypeScript, React Native, Node.js, Go"
-            leftIcon={<Ionicons name="code-slash-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="code-slash-outline" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -178,7 +185,7 @@ export default function EditProfileScreen() {
             value={experience}
             onChangeText={setExperience}
             placeholder="e.g. 5+ years in Web & Mobile Engineering"
-            leftIcon={<Ionicons name="ribbon-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="ribbon-outline" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -186,10 +193,10 @@ export default function EditProfileScreen() {
             value={education}
             onChangeText={setEducation}
             placeholder="e.g. BSc Computer Science, KNUST"
-            leftIcon={<Ionicons name="school-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="school-outline" size={18} color={colors.textTertiary} />}
           />
 
-          <Text style={styles.sectionHeader}>DEVELOPER LINKS</Text>
+          <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>DEVELOPER LINKS</Text>
 
           <Input
             label="GitHub Profile URL"
@@ -197,7 +204,7 @@ export default function EditProfileScreen() {
             onChangeText={setGithubUrl}
             placeholder="https://github.com/..."
             autoCapitalize="none"
-            leftIcon={<Ionicons name="logo-github" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="logo-github" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -206,7 +213,7 @@ export default function EditProfileScreen() {
             onChangeText={setPortfolioUrl}
             placeholder="https://yourportfolio.dev"
             autoCapitalize="none"
-            leftIcon={<Ionicons name="globe-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="globe-outline" size={18} color={colors.textTertiary} />}
           />
 
           <Input
@@ -215,7 +222,7 @@ export default function EditProfileScreen() {
             onChangeText={setWebsiteUrl}
             placeholder="https://..."
             autoCapitalize="none"
-            leftIcon={<Ionicons name="link-outline" size={18} color={Colors.mutedGrey} />}
+            leftIcon={<Ionicons name="link-outline" size={18} color={colors.textTertiary} />}
           />
         </ScrollView>
       </KeyboardAvoidingView>

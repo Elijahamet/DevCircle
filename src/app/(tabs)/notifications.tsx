@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { Avatar } from '@/components/Avatar';
 import { FilterPills, FilterItem } from '@/components/FilterPills';
 import { EmptyState } from '@/components/EmptyState';
@@ -32,6 +32,7 @@ export default function NotificationsScreen() {
     markNotificationRead,
     markAllNotificationsRead,
     unreadNotificationsCount,
+    colors,
   } = useDevCircle();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -73,14 +74,23 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.headerBg,
+            borderBottomColor: colors.headerBorder,
+          },
+        ]}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Notifications</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Notifications</Text>
           {unreadNotificationsCount > 0 && (
-            <View style={styles.unreadBadge}>
-              <Text style={styles.unreadBadgeText}>{unreadNotificationsCount} new</Text>
+            <View style={[styles.unreadBadge, { backgroundColor: colors.primaryMuted }]}>
+              <Text style={[styles.unreadBadgeText, { color: colors.primary }]}>
+                {unreadNotificationsCount} new
+              </Text>
             </View>
           )}
         </View>
@@ -91,14 +101,16 @@ export default function NotificationsScreen() {
               onPress={markAllNotificationsRead}
               activeOpacity={0.7}
               style={styles.markAllBtn}>
-              <Text style={styles.markAllText}>Mark all as read</Text>
+              <Text style={[styles.markAllText, { color: colors.primary }]}>
+                Mark all as read
+              </Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity
             onPress={() => router.push('/settings')}
             style={styles.settingsIconBtn}>
-            <Ionicons name="settings-outline" size={20} color={Colors.white} />
+            <Ionicons name="settings-outline" size={20} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -120,7 +132,12 @@ export default function NotificationsScreen() {
               key={notif.id}
               style={[
                 styles.notifCard,
-                !notif.isRead && styles.notifCardUnread,
+                {
+                  backgroundColor: notif.isRead
+                    ? colors.card
+                    : colors.primaryMuted,
+                  borderColor: colors.cardBorder,
+                },
               ]}
               activeOpacity={0.75}
               onPress={() => handleNotificationPress(notif)}>
@@ -137,14 +154,22 @@ export default function NotificationsScreen() {
               </View>
 
               <View style={styles.notifContent}>
-                <Text style={styles.notifText}>
-                  <Text style={styles.actorName}>{notif.actor.name}</Text>{' '}
+                <Text style={[styles.notifText, { color: colors.text }]}>
+                  <Text style={[styles.actorName, { color: colors.text }]}>
+                    {notif.actor.name}
+                  </Text>{' '}
                   {notif.message}
                 </Text>
-                <Text style={styles.notifTime}>{notif.createdAt}</Text>
+                <Text style={[styles.notifTime, { color: colors.textTertiary }]}>
+                  {notif.createdAt}
+                </Text>
               </View>
 
-              {!notif.isRead && <View style={styles.blueDot} />}
+              {!notif.isRead && (
+                <View
+                  style={[styles.blueDot, { backgroundColor: colors.primary }]}
+                />
+              )}
             </TouchableOpacity>
           ))
         ) : (

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { PostCard } from '@/components/PostCard';
 import { FilterPills, FilterItem } from '@/components/FilterPills';
 import { EmptyState } from '@/components/EmptyState';
@@ -25,7 +25,7 @@ const BOOKMARK_FILTERS: FilterItem[] = [
 
 export default function BookmarksScreen() {
   const router = useRouter();
-  const { posts, savedPostIds } = useDevCircle();
+  const { posts, savedPostIds, colors } = useDevCircle();
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   const bookmarkedPosts = useMemo(() => {
@@ -35,16 +35,23 @@ export default function BookmarksScreen() {
   }, [posts, savedPostIds, selectedFilter]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.headerBg,
+            borderBottomColor: colors.headerBorder,
+          },
+        ]}>
         <TouchableOpacity
           style={styles.backBtn}
           onPress={() => router.back()}
           activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={22} color={Colors.white} />
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Bookmarks</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Bookmarks</Text>
         <View style={{ width: 36 }} />
       </View>
 

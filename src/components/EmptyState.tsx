@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
+import { useDevCircle } from '@/context/DevCircleContext';
 import { Button } from './Button';
 
 interface EmptyStateProps {
@@ -21,13 +22,24 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
   style,
 }) => {
+  const { colors } = useDevCircle();
+
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.iconCircle}>
-        <Ionicons name={icon} size={36} color={Colors.electricGreen} />
+      <View
+        style={[
+          styles.iconCircle,
+          {
+            backgroundColor: colors.inputBackground,
+            borderColor: colors.cardBorder,
+          },
+        ]}>
+        <Ionicons name={icon} size={36} color={colors.primary} />
       </View>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{description}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      <Text style={[styles.description, { color: colors.textSecondary }]}>
+        {description}
+      </Text>
       {actionTitle && onAction && (
         <Button
           title={actionTitle}
@@ -62,13 +74,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.white,
     textAlign: 'center',
     marginBottom: Spacing.xs,
   },
   description: {
     fontSize: 14,
-    color: Colors.mutedGrey,
     textAlign: 'center',
     lineHeight: 20,
     maxWidth: 280,

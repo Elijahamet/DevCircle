@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
+import { useDevCircle } from '@/context/DevCircleContext';
 
 interface AvatarProps {
   url?: string;
@@ -21,6 +21,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   onPress,
   showBorder = false,
 }) => {
+  const { colors } = useDevCircle();
   const [imageError, setImageError] = useState(false);
 
   const getInitials = (fullName: string) => {
@@ -45,7 +46,7 @@ export const Avatar: React.FC<AvatarProps> = ({
               height: size,
               borderRadius: size / 2,
               borderWidth: showBorder ? 2 : 0,
-              borderColor: Colors.electricGreen,
+              borderColor: colors.primary,
             },
           ]}
           contentFit="cover"
@@ -61,10 +62,18 @@ export const Avatar: React.FC<AvatarProps> = ({
               height: size,
               borderRadius: size / 2,
               borderWidth: showBorder ? 2 : 0,
-              borderColor: Colors.electricGreen,
+              borderColor: colors.primary,
+              backgroundColor: colors.inputBackground,
             },
           ]}>
-          <Text style={[styles.initials, { fontSize: Math.max(11, Math.round(size * 0.38)) }]}>
+          <Text
+            style={[
+              styles.initials,
+              {
+                fontSize: Math.max(11, Math.round(size * 0.38)),
+                color: colors.text,
+              },
+            ]}>
             {getInitials(name)}
           </Text>
         </View>
@@ -80,6 +89,8 @@ export const Avatar: React.FC<AvatarProps> = ({
               borderRadius: badgeSize / 2,
               bottom: 0,
               right: 0,
+              backgroundColor: colors.primary,
+              borderColor: colors.background,
             },
           ]}>
           <Ionicons name="checkmark" size={Math.round(badgeSize * 0.75)} color="#07111F" />

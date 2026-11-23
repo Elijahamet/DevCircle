@@ -8,7 +8,8 @@ import {
   TextStyle,
   View,
 } from 'react-native';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
+import { useDevCircle } from '@/context/DevCircleContext';
 
 interface ButtonProps {
   title: string;
@@ -37,12 +38,42 @@ export const Button: React.FC<ButtonProps> = ({
   textStyle,
   fullWidth = false,
 }) => {
+  const { colors } = useDevCircle();
+
   const getContainerStyles = (): ViewStyle[] => {
     const list: ViewStyle[] = [
       styles.base,
-      styles[variant],
       styles[size],
     ];
+
+    if (variant === 'primary') {
+      list.push({
+        backgroundColor: colors.primary,
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 3,
+      });
+    } else if (variant === 'secondary') {
+      list.push({
+        backgroundColor: colors.inputBackground,
+        borderWidth: 1,
+        borderColor: colors.cardBorder,
+      });
+    } else if (variant === 'outline') {
+      list.push({
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderColor: colors.primary,
+      });
+    } else if (variant === 'danger') {
+      list.push({
+        backgroundColor: colors.danger,
+      });
+    } else {
+      list.push(styles.ghost);
+    }
 
     if (fullWidth) {
       list.push(styles.fullWidth);
@@ -62,9 +93,20 @@ export const Button: React.FC<ButtonProps> = ({
   const getTextStyles = (): TextStyle[] => {
     const list: TextStyle[] = [
       styles.baseText,
-      styles[`${variant}Text` as keyof typeof styles] as TextStyle,
       styles[`${size}Text` as keyof typeof styles] as TextStyle,
     ];
+
+    if (variant === 'primary') {
+      list.push({ color: colors.textInverse, fontWeight: '700' });
+    } else if (variant === 'secondary') {
+      list.push({ color: colors.text });
+    } else if (variant === 'outline') {
+      list.push({ color: colors.primary, fontWeight: '700' });
+    } else if (variant === 'danger') {
+      list.push({ color: '#FFFFFF' });
+    } else {
+      list.push({ color: colors.textSecondary });
+    }
 
     if (textStyle) {
       list.push(textStyle);
@@ -82,7 +124,7 @@ export const Button: React.FC<ButtonProps> = ({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'primary' ? Colors.deepNavy : Colors.electricGreen}
+          color={variant === 'primary' ? colors.textInverse : colors.primary}
         />
       ) : (
         <>
@@ -109,30 +151,8 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.6,
   },
-  // Variants
-  primary: {
-    backgroundColor: Colors.electricGreen,
-    shadowColor: Colors.electricGreen,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  secondary: {
-    backgroundColor: Colors.slate,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: Colors.electricGreen,
-  },
   ghost: {
     backgroundColor: 'transparent',
-  },
-  danger: {
-    backgroundColor: Colors.danger,
   },
   // Sizes
   sm: {
@@ -152,23 +172,6 @@ const styles = StyleSheet.create({
   // Text
   baseText: {
     fontWeight: '600',
-  },
-  primaryText: {
-    color: Colors.deepNavy,
-    fontWeight: '700',
-  },
-  secondaryText: {
-    color: Colors.white,
-  },
-  outlineText: {
-    color: Colors.electricGreen,
-    fontWeight: '700',
-  },
-  ghostText: {
-    color: Colors.mutedGrey,
-  },
-  dangerText: {
-    color: Colors.white,
   },
   smText: {
     fontSize: 12.5,

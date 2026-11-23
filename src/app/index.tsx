@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '@/constants/theme';
+import { useDevCircle } from '@/context/DevCircleContext';
 import { DevCircleLogo } from '@/components/DevCircleLogo';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -17,6 +17,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen() {
   const router = useRouter();
+  const { colors } = useDevCircle();
 
   const [fadeAnim] = useState(() => new Animated.Value(0));
   const [scaleAnim] = useState(() => new Animated.Value(0.85));
@@ -69,7 +70,7 @@ export default function SplashScreen() {
   }, [fadeAnim, scaleAnim, pulseAnim, handleNavigate]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Background ambient glow circles */}
       <View style={styles.ambientGlowTop} />
       <View style={styles.ambientGlowBottom} />
@@ -89,8 +90,8 @@ export default function SplashScreen() {
 
         {/* App Title */}
         <View style={styles.titleContainer}>
-          <Text style={styles.titleText}>
-            Dev<Text style={styles.greenText}>Circle</Text>
+          <Text style={[styles.titleText, { color: colors.text }]}>
+            Dev<Text style={[styles.greenText, { color: colors.primary }]}>Circle</Text>
           </Text>
           <View style={styles.ghanaBadge}>
             <Text style={styles.ghanaBadgeText}>GHANA TECH COMMUNITY</Text>
@@ -98,21 +99,21 @@ export default function SplashScreen() {
         </View>
 
         {/* Tagline */}
-        <Text style={styles.tagline}>Connect. Learn. Share. Grow.</Text>
+        <Text style={[styles.tagline, { color: colors.textSecondary }]}>Connect. Learn. Share. Grow.</Text>
 
         {/* Feature Highlights Pills */}
         <View style={styles.highlightsRow}>
-          <View style={styles.highlightPill}>
-            <Ionicons name="code-working" size={14} color={Colors.electricGreen} />
-            <Text style={styles.highlightText}>Code</Text>
+          <View style={[styles.highlightPill, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            <Ionicons name="code-working" size={14} color={colors.primary} />
+            <Text style={[styles.highlightText, { color: colors.text }]}>Code</Text>
           </View>
-          <View style={styles.highlightPill}>
-            <Ionicons name="people" size={14} color={Colors.electricGreen} />
-            <Text style={styles.highlightText}>Community</Text>
+          <View style={[styles.highlightPill, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            <Ionicons name="people" size={14} color={colors.primary} />
+            <Text style={[styles.highlightText, { color: colors.text }]}>Community</Text>
           </View>
-          <View style={styles.highlightPill}>
-            <Ionicons name="rocket" size={14} color={Colors.electricGreen} />
-            <Text style={styles.highlightText}>Projects</Text>
+          <View style={[styles.highlightPill, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            <Ionicons name="rocket" size={14} color={colors.primary} />
+            <Text style={[styles.highlightText, { color: colors.text }]}>Projects</Text>
           </View>
         </View>
       </Animated.View>
@@ -121,9 +122,9 @@ export default function SplashScreen() {
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={handleNavigate}
-        style={styles.bottomTap}>
-        <Text style={styles.bottomTapText}>Tap anywhere to continue</Text>
-        <Ionicons name="chevron-forward" size={14} color={Colors.electricGreen} />
+        style={[styles.bottomTap, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+        <Text style={[styles.bottomTapText, { color: colors.textSecondary }]}>Tap anywhere to continue</Text>
+        <Ionicons name="chevron-forward" size={14} color={colors.primary} />
       </TouchableOpacity>
     </View>
   );

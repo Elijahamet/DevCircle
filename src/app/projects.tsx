@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { ProjectCard } from '@/components/ProjectCard';
 import { FilterPills, FilterItem } from '@/components/FilterPills';
 import { EmptyState } from '@/components/EmptyState';
@@ -25,7 +25,7 @@ const PROJECT_CATEGORIES: FilterItem[] = [
 
 export default function ProjectsScreen() {
   const router = useRouter();
-  const { projects } = useDevCircle();
+  const { projects, colors } = useDevCircle();
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const filteredProjects = useMemo(() => {
@@ -34,32 +34,46 @@ export default function ProjectsScreen() {
   }, [projects, selectedCategory]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.headerBg,
+            borderBottomColor: colors.headerBorder,
+          },
+        ]}>
         <TouchableOpacity
           style={styles.backBtn}
           onPress={() => router.back()}
           activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={22} color={Colors.white} />
+          <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Project Showcase</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Project Showcase</Text>
         <TouchableOpacity
-          style={styles.addBtn}
+          style={[styles.addBtn, { backgroundColor: colors.primary }]}
           onPress={() => router.push('/(tabs)/create')}
           activeOpacity={0.7}>
-          <Ionicons name="add" size={20} color={Colors.deepNavy} />
+          <Ionicons name="add" size={20} color={colors.textInverse} />
         </TouchableOpacity>
       </View>
 
       {/* Banner / Description */}
-      <View style={styles.introCard}>
+      <View
+        style={[
+          styles.introCard,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.cardBorder,
+          },
+        ]}>
         <View style={styles.introBadge}>
-          <Ionicons name="rocket-outline" size={13} color="#19E68C" />
-          <Text style={styles.introBadgeText}>MADE IN GHANA 🇬🇭</Text>
+          <Ionicons name="rocket-outline" size={13} color={colors.primary} />
+          <Text style={[styles.introBadgeText, { color: colors.primary }]}>MADE IN GHANA 🇬🇭</Text>
         </View>
-        <Text style={styles.introTitle}>Showcase Your Engineering Work</Text>
-        <Text style={styles.introText}>
+        <Text style={[styles.introTitle, { color: colors.text }]}>Showcase Your Engineering Work</Text>
+        <Text style={[styles.introText, { color: colors.textSecondary }]}>
           Discover open source applications, libraries, APIs and mobile products built by Ghanaian developers.
         </Text>
       </View>

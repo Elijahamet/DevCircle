@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
+import { useDevCircle } from '@/context/DevCircleContext';
 import { CodeSnippet } from '@/types';
 
 interface CodeBlockProps {
@@ -15,6 +16,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   maxLines,
   showCopy = true,
 }) => {
+  const { colors } = useDevCircle();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -51,12 +53,12 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
               <Ionicons
                 name={copied ? 'checkmark' : 'copy-outline'}
                 size={14}
-                color={copied ? Colors.electricGreen : Colors.mutedGrey}
+                color={copied ? colors.primary : colors.textSecondary}
               />
               <Text
                 style={[
                   styles.copyText,
-                  copied && { color: Colors.electricGreen },
+                  copied && { color: colors.primary },
                 ]}>
                 {copied ? 'Copied!' : 'Copy'}
               </Text>

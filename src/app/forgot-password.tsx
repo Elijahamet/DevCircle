@@ -9,13 +9,15 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
+import { useDevCircle } from '@/context/DevCircleContext';
 import { DevCircleLogo } from '@/components/DevCircleLogo';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const { colors } = useDevCircle();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,15 +38,15 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Back navigation */}
         <TouchableOpacity
           style={styles.backBtn}
           onPress={() => router.back()}
           activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={20} color={Colors.white} />
-          <Text style={styles.backText}>Back to Sign In</Text>
+          <Ionicons name="arrow-back" size={20} color={colors.text} />
+          <Text style={[styles.backText, { color: colors.text }]}>Back to Sign In</Text>
         </TouchableOpacity>
 
         <View style={styles.header}>
@@ -52,19 +54,33 @@ export default function ForgotPasswordScreen() {
         </View>
 
         {!isSuccess ? (
-          <View style={styles.formCard}>
-            <View style={styles.iconCircle}>
-              <Ionicons name="key-outline" size={32} color={Colors.electricGreen} />
+          <View
+            style={[
+              styles.formCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}>
+            <View
+              style={[
+                styles.iconCircle,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.cardBorder,
+                },
+              ]}>
+              <Ionicons name="key-outline" size={32} color={colors.primary} />
             </View>
 
-            <Text style={styles.title}>Reset Password</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: colors.text }]}>Reset Password</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               Enter your email and we will send you recovery instructions to regain access to your account.
             </Text>
 
             {error ? (
               <View style={styles.errorBox}>
-                <Ionicons name="alert-circle" size={16} color={Colors.danger} />
+                <Ionicons name="alert-circle" size={16} color={colors.danger} />
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             ) : null}
@@ -79,7 +95,7 @@ export default function ForgotPasswordScreen() {
               }}
               keyboardType="email-address"
               autoCapitalize="none"
-              leftIcon={<Ionicons name="mail-outline" size={18} color={Colors.mutedGrey} />}
+              leftIcon={<Ionicons name="mail-outline" size={18} color={colors.textTertiary} />}
             />
 
             <Button
@@ -93,20 +109,42 @@ export default function ForgotPasswordScreen() {
             />
           </View>
         ) : (
-          <View style={styles.formCard}>
-            <View style={[styles.iconCircle, styles.successCircle]}>
-              <Ionicons name="checkmark-done" size={36} color={Colors.electricGreen} />
+          <View
+            style={[
+              styles.formCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}>
+            <View
+              style={[
+                styles.iconCircle,
+                styles.successCircle,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.primary,
+                },
+              ]}>
+              <Ionicons name="checkmark-done" size={36} color={colors.primary} />
             </View>
 
-            <Text style={styles.title}>Check Your Inbox</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: colors.text }]}>Check Your Inbox</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               We have dispatched password recovery instructions to{' '}
-              <Text style={styles.emailHighlight}>{email}</Text>. Please check your spam folder if it does not appear shortly.
+              <Text style={[styles.emailHighlight, { color: colors.primary }]}>{email}</Text>. Please check your spam folder if it does not appear shortly.
             </Text>
 
-            <View style={styles.demoNoticeBox}>
-              <Ionicons name="information-circle-outline" size={16} color="#38BDF8" />
-              <Text style={styles.demoNoticeText}>
+            <View
+              style={[
+                styles.demoNoticeBox,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.cardBorder,
+                },
+              ]}>
+              <Ionicons name="information-circle-outline" size={16} color={colors.info} />
+              <Text style={[styles.demoNoticeText, { color: colors.textSecondary }]}>
                 Demo mode: As this is running purely on local state, you can return and sign in directly with the instant demo button.
               </Text>
             </View>

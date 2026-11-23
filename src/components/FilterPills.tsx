@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { Radius, Spacing } from '@/constants/theme';
+import { useDevCircle } from '@/context/DevCircleContext';
 
 export interface FilterItem {
   id: string;
@@ -19,8 +20,17 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
   selectedId,
   onSelect,
 }) => {
+  const { colors } = useDevCircle();
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background,
+          borderBottomColor: colors.headerBorder,
+        },
+      ]}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -34,11 +44,23 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
               onPress={() => onSelect(item.id)}
               style={[
                 styles.pill,
-                isSelected && styles.pillSelected,
+                {
+                  backgroundColor: isSelected
+                    ? colors.primary
+                    : colors.inputBackground,
+                  borderColor: isSelected
+                    ? colors.primary
+                    : colors.cardBorder,
+                },
               ]}>
               <Text
                 style={[
                   styles.label,
+                  {
+                    color: isSelected
+                      ? colors.textInverse
+                      : colors.textSecondary,
+                  },
                   isSelected && styles.labelSelected,
                 ]}>
                 {item.label}

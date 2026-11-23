@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { Button } from '@/components/Button';
 import { PostCard } from '@/components/PostCard';
 import { useDevCircle } from '@/context/DevCircleContext';
@@ -45,7 +45,7 @@ const CODE_LANGUAGES: ('typescript' | 'javascript' | 'python' | 'go' | 'java')[]
 
 export default function CreatePostScreen() {
   const router = useRouter();
-  const { currentUser, createPost } = useDevCircle();
+  const { currentUser, createPost, colors } = useDevCircle();
 
   const [selectedType, setSelectedType] = useState<PostType>('discussion');
   const [selectedCategory, setSelectedCategory] = useState<PostCategory>('ghana_tech');
@@ -174,25 +174,32 @@ export default function CreatePostScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.headerBg,
+            borderBottomColor: colors.headerBorder,
+          },
+        ]}>
         <TouchableOpacity
           style={styles.cancelBtn}
           onPress={() => router.back()}
           activeOpacity={0.7}>
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancel</Text>
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Create Post</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Create Post</Text>
 
         <View style={styles.headerRightActions}>
           <TouchableOpacity
             style={styles.previewIconBtn}
             onPress={() => setShowPreview(true)}
             activeOpacity={0.7}>
-            <Ionicons name="eye-outline" size={18} color="#19E68C" />
-            <Text style={styles.previewText}>Preview</Text>
+            <Ionicons name="eye-outline" size={18} color={colors.primary} />
+            <Text style={[styles.previewText, { color: colors.primary }]}>Preview</Text>
           </TouchableOpacity>
 
           <Button
@@ -210,7 +217,7 @@ export default function CreatePostScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled">
         {/* Post Type Selector */}
-        <Text style={styles.sectionLabel}>SELECT POST TYPE</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>SELECT POST TYPE</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -220,18 +227,33 @@ export default function CreatePostScreen() {
             return (
               <TouchableOpacity
                 key={pt.type}
-                style={[styles.typePill, isSelected && styles.typePillActive]}
+                style={[
+                  styles.typePill,
+                  {
+                    backgroundColor: isSelected
+                      ? colors.primary
+                      : colors.inputBackground,
+                    borderColor: isSelected
+                      ? colors.primary
+                      : colors.cardBorder,
+                  },
+                ]}
                 activeOpacity={0.75}
                 onPress={() => setSelectedType(pt.type)}>
                 <Ionicons
                   name={pt.icon}
                   size={15}
-                  color={isSelected ? '#07111F' : '#94A3B8'}
+                  color={isSelected ? colors.textInverse : colors.textSecondary}
                 />
                 <Text
                   style={[
                     styles.typePillText,
-                    isSelected && styles.typePillTextActive,
+                    {
+                      color: isSelected
+                        ? colors.textInverse
+                        : colors.textSecondary,
+                    },
+                    isSelected && { fontWeight: '700' },
                   ]}>
                   {pt.label}
                 </Text>
@@ -241,7 +263,7 @@ export default function CreatePostScreen() {
         </ScrollView>
 
         {/* Category Selector */}
-        <Text style={styles.sectionLabel}>CATEGORY</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>CATEGORY</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -251,13 +273,28 @@ export default function CreatePostScreen() {
             return (
               <TouchableOpacity
                 key={cat.id}
-                style={[styles.catPill, isSelected && styles.catPillActive]}
+                style={[
+                  styles.catPill,
+                  {
+                    backgroundColor: isSelected
+                      ? colors.primary
+                      : colors.inputBackground,
+                    borderColor: isSelected
+                      ? colors.primary
+                      : colors.cardBorder,
+                  },
+                ]}
                 activeOpacity={0.75}
                 onPress={() => setSelectedCategory(cat.id)}>
                 <Text
                   style={[
                     styles.catPillText,
-                    isSelected && styles.catPillTextActive,
+                    {
+                      color: isSelected
+                        ? colors.textInverse
+                        : colors.textSecondary,
+                    },
+                    isSelected && { fontWeight: '700' },
                   ]}>
                   {cat.label}
                 </Text>
@@ -267,21 +304,35 @@ export default function CreatePostScreen() {
         </ScrollView>
 
         {/* Title Input */}
-        <Text style={styles.sectionLabel}>TITLE (OPTIONAL)</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>TITLE (OPTIONAL)</Text>
         <TextInput
-          style={styles.titleInput}
+          style={[
+            styles.titleInput,
+            {
+              backgroundColor: colors.inputBackground,
+              borderColor: colors.inputBorder,
+              color: colors.text,
+            },
+          ]}
           placeholder="Give your discussion or showcase a title..."
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textTertiary}
           value={title}
           onChangeText={setTitle}
         />
 
         {/* Main Content Body */}
-        <Text style={styles.sectionLabel}>CONTENT</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>CONTENT</Text>
         <TextInput
-          style={styles.contentInput}
+          style={[
+            styles.contentInput,
+            {
+              backgroundColor: colors.inputBackground,
+              borderColor: colors.inputBorder,
+              color: colors.text,
+            },
+          ]}
           placeholder="Share your technical question, insight, or announcement with Ghanaian developers..."
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textTertiary}
           value={content}
           onChangeText={setContent}
           multiline={true}
@@ -322,17 +373,29 @@ export default function CreatePostScreen() {
             </View>
 
             <TextInput
-              style={styles.codeFileNameInput}
+              style={[
+                styles.codeFileNameInput,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.cardBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="File name (e.g. webhookHandler.ts)"
-              placeholderTextColor="#64748B"
+              placeholderTextColor={colors.textTertiary}
               value={codeFileName}
               onChangeText={setCodeFileName}
             />
 
             <TextInput
-              style={styles.codeContentInput}
+              style={[
+                styles.codeContentInput,
+                {
+                  color: colors.text,
+                },
+              ]}
               placeholder="// Paste or write your code snippet here..."
-              placeholderTextColor="#475569"
+              placeholderTextColor={colors.textTertiary}
               value={codeContent}
               onChangeText={setCodeContent}
               multiline={true}
@@ -345,35 +408,70 @@ export default function CreatePostScreen() {
 
         {/* Project Meta Inputs (if selected type is project) */}
         {selectedType === 'project' && (
-          <View style={styles.projectFormBox}>
-            <Text style={styles.projectFormTitle}>Project Details</Text>
+          <View
+            style={[
+              styles.projectFormBox,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}>
+            <Text style={[styles.projectFormTitle, { color: colors.text }]}>Project Details</Text>
             <TextInput
-              style={styles.smallInput}
+              style={[
+                styles.smallInput,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="Project Name (e.g. Accra Transit)"
-              placeholderTextColor="#64748B"
+              placeholderTextColor={colors.textTertiary}
               value={projectName}
               onChangeText={setProjectName}
             />
             <TextInput
-              style={styles.smallInput}
+              style={[
+                styles.smallInput,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="GitHub Repository URL"
-              placeholderTextColor="#64748B"
+              placeholderTextColor={colors.textTertiary}
               value={projectRepo}
               onChangeText={setProjectRepo}
               autoCapitalize="none"
             />
             <TextInput
-              style={styles.smallInput}
+              style={[
+                styles.smallInput,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="Live Demo URL (optional)"
-              placeholderTextColor="#64748B"
+              placeholderTextColor={colors.textTertiary}
               value={projectDemo}
               onChangeText={setProjectDemo}
               autoCapitalize="none"
             />
             <TextInput
-              style={styles.smallInput}
+              style={[
+                styles.smallInput,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="Technologies (comma separated, e.g. React Native, Go)"
-              placeholderTextColor="#64748B"
+              placeholderTextColor={colors.textTertiary}
               value={projectTechStack}
               onChangeText={setProjectTechStack}
             />
@@ -381,29 +479,45 @@ export default function CreatePostScreen() {
         )}
 
         {/* Optional Image URL */}
-        <Text style={styles.sectionLabel}>COVER / ATTACHMENT IMAGE URL (OPTIONAL)</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>COVER / ATTACHMENT IMAGE URL (OPTIONAL)</Text>
         <TextInput
-          style={styles.titleInput}
+          style={[
+            styles.titleInput,
+            {
+              backgroundColor: colors.inputBackground,
+              borderColor: colors.inputBorder,
+              color: colors.text,
+            },
+          ]}
           placeholder="https://images.unsplash.com/..."
-          placeholderTextColor="#64748B"
+          placeholderTextColor={colors.textTertiary}
           value={imageUrl}
           onChangeText={setImageUrl}
           autoCapitalize="none"
         />
 
         {/* Tags */}
-        <Text style={styles.sectionLabel}>COMMUNITY TAGS</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>COMMUNITY TAGS</Text>
         <View style={styles.tagInputRow}>
           <TextInput
-            style={styles.tagInput}
+            style={[
+              styles.tagInput,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.inputBorder,
+                color: colors.text,
+              },
+            ]}
             placeholder="Add tag (e.g. MoMo, Paystack, AI)"
-            placeholderTextColor="#64748B"
+            placeholderTextColor={colors.textTertiary}
             value={tagInput}
             onChangeText={setTagInput}
             onSubmitEditing={handleAddTag}
           />
-          <TouchableOpacity style={styles.addTagBtn} onPress={handleAddTag}>
-            <Text style={styles.addTagBtnText}>Add</Text>
+          <TouchableOpacity
+            style={[styles.addTagBtn, { backgroundColor: colors.primary }]}
+            onPress={handleAddTag}>
+            <Text style={[styles.addTagBtnText, { color: colors.textInverse }]}>Add</Text>
           </TouchableOpacity>
         </View>
 
@@ -412,9 +526,15 @@ export default function CreatePostScreen() {
             <TouchableOpacity
               key={t}
               onPress={() => handleRemoveTag(t)}
-              style={styles.tagPill}>
-              <Text style={styles.tagText}>#{t}</Text>
-              <Ionicons name="close" size={13} color="#94A3B8" />
+              style={[
+                styles.tagPill,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.cardBorder,
+                },
+              ]}>
+              <Text style={[styles.tagText, { color: colors.primary }]}>#{t}</Text>
+              <Ionicons name="close" size={13} color={colors.textSecondary} />
             </TouchableOpacity>
           ))}
         </View>
@@ -422,13 +542,20 @@ export default function CreatePostScreen() {
 
       {/* Live Preview Modal */}
       <Modal visible={showPreview} animationType="slide" transparent={false}>
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Post Preview</Text>
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <View
+            style={[
+              styles.modalHeader,
+              {
+                backgroundColor: colors.headerBg,
+                borderBottomColor: colors.headerBorder,
+              },
+            ]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Post Preview</Text>
             <TouchableOpacity
               onPress={() => setShowPreview(false)}
               style={styles.closeModalBtn}>
-              <Ionicons name="close" size={22} color={Colors.white} />
+              <Ionicons name="close" size={22} color={colors.text} />
             </TouchableOpacity>
           </View>
 
