@@ -18,7 +18,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   rightAction,
 }) => {
   const router = useRouter();
-  const { currentUser, unreadNotificationsCount, themeMode, toggleTheme, colors } = useDevCircle();
+  const { currentUser, themeMode, toggleTheme, colors } = useDevCircle();
 
   return (
     <View style={[styles.header, { backgroundColor: colors.headerBg, borderBottomColor: colors.headerBorder }]}>
@@ -62,17 +62,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               activeOpacity={0.7}
               onPress={() => router.push('/search')}>
               <Ionicons name="search-outline" size={20} color={colors.text} />
-            </TouchableOpacity>
-
-            {/* Notifications Button with Unread Badge */}
-            <TouchableOpacity
-              style={[styles.iconButton, { backgroundColor: colors.iconButtonBg, borderColor: colors.iconButtonBorder }]}
-              activeOpacity={0.7}
-              onPress={() => router.push('/(tabs)/notifications')}>
-              <Ionicons name="notifications-outline" size={20} color={colors.text} />
-              {unreadNotificationsCount > 0 && (
-                <View style={styles.notificationDot} />
-              )}
             </TouchableOpacity>
 
             {/* User Avatar */}
@@ -119,18 +108,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 6,
-    right: 7,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#19E68C',
-    borderWidth: 1.5,
-    borderColor: '#07111F',
   },
   avatarWrapper: {
     marginLeft: 2,
