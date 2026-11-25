@@ -41,9 +41,9 @@ export default function ProfileScreen() {
     );
   }, [posts, currentUser.username]);
 
-  // Posts with images (pictures side)
+  // Posts with images or videos (media side)
   const userMediaPosts = useMemo(() => {
-    return userPosts.filter((p) => Boolean(p.imageUrl));
+    return userPosts.filter((p) => Boolean(p.imageUrl || p.videoUrl));
   }, [userPosts]);
 
   const userProjects = useMemo(() => {
@@ -408,11 +408,17 @@ export default function ProfileScreen() {
                       },
                     ]}>
                     <Image
-                      source={{ uri: post.imageUrl }}
+                      source={{ uri: post.imageUrl || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800' }}
                       style={styles.mediaTileImage}
                       contentFit="cover"
                       transition={250}
                     />
+
+                    {(post.videoUrl || post.mediaType === 'video') && (
+                      <View style={styles.mediaVideoBadge}>
+                        <Ionicons name="videocam" size={12} color="#FFFFFF" />
+                      </View>
+                    )}
 
                     {/* Gradient / Title overlay */}
                     <View style={styles.mediaTileOverlay}>
@@ -797,6 +803,15 @@ const styles = StyleSheet.create({
   mediaTileImage: {
     width: '100%',
     height: '100%',
+  },
+  mediaVideoBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(7, 17, 31, 0.75)',
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    borderRadius: 4,
   },
   mediaTileOverlay: {
     position: 'absolute',

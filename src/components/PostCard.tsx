@@ -28,7 +28,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   showFullContent = false,
 }) => {
   const router = useRouter();
-  const { toggleLikePost, toggleBookmarkPost, colors } = useDevCircle();
+  const { currentUser, deletePost, toggleLikePost, toggleBookmarkPost, colors } = useDevCircle();
   const [showOptions, setShowOptions] = useState(false);
 
   const getTypeBadge = (type: PostType) => {
@@ -78,11 +78,26 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   const navigateToProfile = () => {
-    if (post.isAuthorSelf) {
+    if (post.isAuthorSelf || post.author.id === currentUser.id || post.author.username === currentUser.username) {
       router.push('/(tabs)/profile');
     } else {
       router.push(`/profile/${post.author.username}`);
     }
+  };
+
+  const handleDeletePost = () => {
+    Alert.alert(
+      'Delete Post',
+      'Are you sure you want to delete this post? This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deletePost(post.id),
+        },
+      ]
+    );
   };
 
   return (
@@ -166,6 +181,19 @@ export const PostCard: React.FC<PostCardProps> = ({
             <Ionicons name="person-outline" size={16} color={colors.text} />
             <Text style={[styles.optionText, { color: colors.text }]}>View Author Profile</Text>
           </TouchableOpacity>
+          {(post.isAuthorSelf || post.author.id === currentUser.id) && (
+            <TouchableOpacity
+              style={[styles.optionItem, { borderBottomColor: colors.cardBorder }]}
+              onPress={() => {
+                setShowOptions(false);
+                handleDeletePost();
+              }}>
+              <Ionicons name="trash-outline" size={16} color={colors.danger} />
+              <Text style={[styles.optionText, { color: colors.danger, fontWeight: '700' }]}>
+                Delete Post
+              </Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={[styles.optionItem, { borderBottomWidth: 0 }]}
             onPress={() => {
@@ -202,8 +230,60 @@ export const PostCard: React.FC<PostCardProps> = ({
         />
       )}
 
-      {/* Post Image (if any) */}
-      {post.imageUrl && (
+      {/* Video Preview (if videoUrl or mediaType === 'video') */}
+      {(post.videoUrl || post.mediaType === 'video') && (
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={navigateToDetails}
+          style={[
+            styles.videoContainer,
+            { borderColor: colors.cardBorder, backgroundColor: colors.backgroundSecondary },
+          ]}>
+          <Image
+            source={{
+              uri:
+                post.imageUrl ||
+                'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800',
+            }}
+            style={styles.videoThumbnail}
+            contentFit="cover"
+            transition={300}
+          />
+          {/* Dark scrim overlay */}
+          <View style={styles.videoOverlay} />
+
+          {/* Top Video Badge */}
+          <View
+            style={[
+              styles.videoBadgePill,
+              {
+                backgroundColor: 'rgba(7, 17, 31, 0.85)',
+                borderColor: colors.cardBorder,
+              },
+            ]}>
+            <Ionicons name="videocam" size={13} color={colors.primary} />
+            <Text style={[styles.videoBadgeText, { color: colors.primary }]}>
+              VIDEO DEMO
+            </Text>
+          </View>
+
+          {/* Center Play Button with glow */}
+          <View style={[styles.playButtonCircle, { backgroundColor: colors.primary }]}>
+            <Ionicons name="play" size={24} color="#07111F" style={{ marginLeft: 3 }} />
+          </View>
+
+          {/* Bottom Duration Badge */}
+          <View style={styles.videoDurationPill}>
+            <Ionicons name="time-outline" size={12} color="#F8FAFC" />
+            <Text style={styles.videoDurationText}>
+              {post.videoDuration || '0:45'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
+
+      {/* Post Image (if any and not video) */}
+      {post.imageUrl && !post.videoUrl && post.mediaType !== 'video' && (
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={navigateToDetails}
@@ -434,6 +514,75 @@ const styles = StyleSheet.create({
   postImage: {
     width: '100%',
     height: 220,
+  },
+  videoContainer: {
+    borderRadius: Radius.md,
+    overflow: 'hidden',
+    marginVertical: Spacing.sm,
+    height: 220,
+    borderWidth: 1,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoThumbnail: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(7, 17, 31, 0.45)',
+  },
+  playButtonCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#19E68C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  videoBadgePill: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  videoBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  videoDurationPill: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(7, 17, 31, 0.85)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  videoDurationText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#F8FAFC',
   },
   projectBox: {
     backgroundColor: '#122032',

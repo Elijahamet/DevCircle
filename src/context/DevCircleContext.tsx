@@ -28,6 +28,9 @@ interface CreatePostInput {
   content: string;
   codeSnippet?: CodeSnippet;
   imageUrl?: string;
+  videoUrl?: string;
+  mediaType?: 'image' | 'video';
+  videoDuration?: string;
   projectMeta?: {
     name: string;
     demoUrl?: string;
@@ -59,6 +62,7 @@ interface DevCircleContextType {
 
   // Actions
   createPost: (input: CreatePostInput) => Post;
+  deletePost: (postId: string) => void;
   toggleLikePost: (postId: string) => void;
   toggleBookmarkPost: (postId: string) => void;
   addComment: (postId: string, content: string, parentCommentId?: string) => void;
@@ -194,6 +198,9 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       content: input.content,
       codeSnippet: input.codeSnippet,
       imageUrl: input.imageUrl,
+      videoUrl: input.videoUrl,
+      mediaType: input.mediaType || (input.videoUrl ? 'video' : input.imageUrl ? 'image' : undefined),
+      videoDuration: input.videoDuration,
       projectMeta: input.projectMeta,
       tags: input.tags.length > 0 ? input.tags : ['DevCircle', 'GhanaTech'],
       likesCount: 0,
@@ -218,6 +225,28 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     persist(STORAGE_KEYS.USER, updatedUser);
 
     return newPost;
+  };
+
+  const deletePost = (postId: string) => {
+    const postToDelete = posts.find((p) => p.id === postId);
+    const updatedPosts = posts.filter((p) => p.id !== postId);
+    setPosts(updatedPosts);
+    persist(STORAGE_KEYS.POSTS, updatedPosts);
+
+    if (postToDelete && (postToDelete.author.id === currentUser.id || postToDelete.isAuthorSelf)) {
+      const updatedUser = {
+        ...currentUser,
+        postsCount: Math.max(0, currentUser.postsCount - 1),
+      };
+      setCurrentUser(updatedUser);
+      persist(STORAGE_KEYS.USER, updatedUser);
+    }
+
+    if (savedPostIds.includes(postId)) {
+      const nextSaved = savedPostIds.filter((id) => id !== postId);
+      setSavedPostIds(nextSaved);
+      persist(STORAGE_KEYS.SAVED_POSTS, nextSaved);
+    }
   };
 
   const toggleLikePost = (postId: string) => {
@@ -465,6 +494,7 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleTheme,
         setTheme,
         createPost,
+        deletePost,
         toggleLikePost,
         toggleBookmarkPost,
         addComment,

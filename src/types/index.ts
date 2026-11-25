@@ -55,6 +55,8 @@ export interface Comment {
   isAuthorSelf?: boolean;
 }
 
+export type MediaType = 'image' | 'video';
+
 export interface Post {
   id: string;
   author: User;
@@ -64,6 +66,9 @@ export interface Post {
   content: string;
   codeSnippet?: CodeSnippet;
   imageUrl?: string;
+  videoUrl?: string;
+  mediaType?: MediaType;
+  videoDuration?: string;
   projectMeta?: {
     name: string;
     demoUrl?: string;

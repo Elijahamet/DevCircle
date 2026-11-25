@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { Radius, Spacing } from '@/constants/theme';
 import { Button } from '@/components/Button';
 import { PostCard } from '@/components/PostCard';
@@ -43,6 +44,50 @@ const CODE_LANGUAGES: ('typescript' | 'javascript' | 'python' | 'go' | 'java')[]
   'java',
 ];
 
+const PHOTO_PRESETS = [
+  {
+    label: 'AccraPay UI',
+    url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+    icon: 'card-outline' as const,
+  },
+  {
+    label: 'Accra DevFest Hackathon',
+    url: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80',
+    icon: 'laptop-outline' as const,
+  },
+  {
+    label: 'Architecture Diagram',
+    url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80',
+    icon: 'git-network-outline' as const,
+  },
+  {
+    label: 'Trotro Transit App',
+    url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80',
+    icon: 'bus-outline' as const,
+  },
+];
+
+const VIDEO_PRESETS = [
+  {
+    label: 'Paystack MoMo Webhook Demo',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    thumbUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+    duration: '0:48',
+  },
+  {
+    label: 'Trotro GPS Tracking Walkthrough',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    thumbUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80',
+    duration: '1:15',
+  },
+  {
+    label: 'Ghanaian Developer CLI Demo',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+    thumbUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+    duration: '0:35',
+  },
+];
+
 export default function CreatePostScreen() {
   const router = useRouter();
   const { currentUser, createPost, colors } = useDevCircle();
@@ -54,6 +99,9 @@ export default function CreatePostScreen() {
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>(['GhanaTech']);
   const [imageUrl, setImageUrl] = useState('');
+  const [mediaAttachmentType, setMediaAttachmentType] = useState<'none' | 'photo' | 'video'>('none');
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoDuration, setVideoDuration] = useState('0:45');
 
   // Code snippet state
   const [codeLanguage, setCodeLanguage] = useState<'typescript' | 'javascript' | 'python' | 'go' | 'java'>('typescript');
@@ -121,7 +169,16 @@ export default function CreatePostScreen() {
         title: title.trim() || undefined,
         content: content.trim(),
         codeSnippet: snippet,
-        imageUrl: imageUrl.trim() || undefined,
+        imageUrl: mediaAttachmentType !== 'none' ? imageUrl.trim() || undefined : undefined,
+        videoUrl: mediaAttachmentType === 'video' ? videoUrl.trim() || undefined : undefined,
+        mediaType:
+          mediaAttachmentType === 'video'
+            ? 'video'
+            : mediaAttachmentType === 'photo'
+              ? 'image'
+              : undefined,
+        videoDuration:
+          mediaAttachmentType === 'video' ? videoDuration.trim() || '0:45' : undefined,
         projectMeta,
         tags,
       });
@@ -152,7 +209,16 @@ export default function CreatePostScreen() {
             fileName: codeFileName.trim() || `snippet.${codeLanguage}`,
           }
         : undefined,
-    imageUrl: imageUrl.trim() || undefined,
+    imageUrl: mediaAttachmentType !== 'none' ? imageUrl.trim() || undefined : undefined,
+    videoUrl: mediaAttachmentType === 'video' ? videoUrl.trim() || undefined : undefined,
+    mediaType:
+      mediaAttachmentType === 'video'
+        ? 'video'
+        : mediaAttachmentType === 'photo'
+          ? 'image'
+          : undefined,
+    videoDuration:
+      mediaAttachmentType === 'video' ? videoDuration.trim() || '0:45' : undefined,
     projectMeta:
       selectedType === 'project' && projectName.trim()
         ? {
@@ -478,23 +544,383 @@ export default function CreatePostScreen() {
           </View>
         )}
 
-        {/* Optional Image URL */}
-        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>COVER / ATTACHMENT IMAGE URL (OPTIONAL)</Text>
-        <TextInput
-          style={[
-            styles.titleInput,
-            {
-              backgroundColor: colors.inputBackground,
-              borderColor: colors.inputBorder,
-              color: colors.text,
-            },
-          ]}
-          placeholder="https://images.unsplash.com/..."
-          placeholderTextColor={colors.textTertiary}
-          value={imageUrl}
-          onChangeText={setImageUrl}
-          autoCapitalize="none"
-        />
+        {/* Media Attachments Section (Picture & Video) */}
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+          ATTACH MEDIA (PICTURE OR VIDEO)
+        </Text>
+
+        {/* Media Type Segmented Pills */}
+        <View style={styles.mediaTypeRow}>
+          <TouchableOpacity
+            style={[
+              styles.mediaTypeBtn,
+              mediaAttachmentType === 'none' && styles.mediaTypeBtnActive,
+              {
+                backgroundColor:
+                  mediaAttachmentType === 'none'
+                    ? colors.primary
+                    : colors.inputBackground,
+                borderColor:
+                  mediaAttachmentType === 'none'
+                    ? colors.primary
+                    : colors.cardBorder,
+              },
+            ]}
+            onPress={() => {
+              setMediaAttachmentType('none');
+              setImageUrl('');
+              setVideoUrl('');
+            }}>
+            <Ionicons
+              name="close-circle-outline"
+              size={15}
+              color={
+                mediaAttachmentType === 'none'
+                  ? colors.textInverse
+                  : colors.textSecondary
+              }
+            />
+            <Text
+              style={[
+                styles.mediaTypeBtnText,
+                {
+                  color:
+                    mediaAttachmentType === 'none'
+                      ? colors.textInverse
+                      : colors.textSecondary,
+                },
+              ]}>
+              No Media
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.mediaTypeBtn,
+              mediaAttachmentType === 'photo' && styles.mediaTypeBtnActive,
+              {
+                backgroundColor:
+                  mediaAttachmentType === 'photo'
+                    ? colors.primary
+                    : colors.inputBackground,
+                borderColor:
+                  mediaAttachmentType === 'photo'
+                    ? colors.primary
+                    : colors.cardBorder,
+              },
+            ]}
+            onPress={() => {
+              setMediaAttachmentType('photo');
+              if (!imageUrl) setImageUrl(PHOTO_PRESETS[0].url);
+            }}>
+            <Ionicons
+              name="image-outline"
+              size={15}
+              color={
+                mediaAttachmentType === 'photo'
+                  ? colors.textInverse
+                  : colors.textSecondary
+              }
+            />
+            <Text
+              style={[
+                styles.mediaTypeBtnText,
+                {
+                  color:
+                    mediaAttachmentType === 'photo'
+                      ? colors.textInverse
+                      : colors.textSecondary,
+                },
+              ]}>
+              Picture / Photo
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.mediaTypeBtn,
+              mediaAttachmentType === 'video' && styles.mediaTypeBtnActive,
+              {
+                backgroundColor:
+                  mediaAttachmentType === 'video'
+                    ? colors.primary
+                    : colors.inputBackground,
+                borderColor:
+                  mediaAttachmentType === 'video'
+                    ? colors.primary
+                    : colors.cardBorder,
+              },
+            ]}
+            onPress={() => {
+              setMediaAttachmentType('video');
+              if (!videoUrl) {
+                setVideoUrl(VIDEO_PRESETS[0].videoUrl);
+                setImageUrl(VIDEO_PRESETS[0].thumbUrl);
+                setVideoDuration(VIDEO_PRESETS[0].duration);
+              }
+            }}>
+            <Ionicons
+              name="videocam-outline"
+              size={15}
+              color={
+                mediaAttachmentType === 'video'
+                  ? colors.textInverse
+                  : colors.textSecondary
+              }
+            />
+            <Text
+              style={[
+                styles.mediaTypeBtnText,
+                {
+                  color:
+                    mediaAttachmentType === 'video'
+                      ? colors.textInverse
+                      : colors.textSecondary,
+                },
+              ]}>
+              Video Demo
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Photo Presets & Input */}
+        {mediaAttachmentType === 'photo' && (
+          <View
+            style={[
+              styles.mediaConfigBox,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}>
+            <Text style={[styles.presetHeader, { color: colors.textSecondary }]}>
+              QUICK PHOTO PRESETS (TAP TO SELECT)
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.presetScroll}>
+              {PHOTO_PRESETS.map((preset, idx) => {
+                const isSelected = imageUrl === preset.url;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[
+                      styles.presetChip,
+                      {
+                        backgroundColor: isSelected
+                          ? 'rgba(25, 230, 140, 0.15)'
+                          : colors.inputBackground,
+                        borderColor: isSelected
+                          ? colors.primary
+                          : colors.cardBorder,
+                      },
+                    ]}
+                    onPress={() => setImageUrl(preset.url)}>
+                    <Ionicons
+                      name={preset.icon}
+                      size={14}
+                      color={isSelected ? colors.primary : colors.textSecondary}
+                    />
+                    <Text
+                      style={[
+                        styles.presetChipText,
+                        {
+                          color: isSelected ? colors.primary : colors.text,
+                          fontWeight: isSelected ? '700' : '500',
+                        },
+                      ]}>
+                      {preset.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            <TextInput
+              style={[
+                styles.smallInput,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                  marginTop: 10,
+                },
+              ]}
+              placeholder="Or paste custom image URL (https://...)"
+              placeholderTextColor={colors.textTertiary}
+              value={imageUrl}
+              onChangeText={setImageUrl}
+              autoCapitalize="none"
+            />
+
+            {/* Live Picture Preview Card with Remove Button */}
+            {imageUrl ? (
+              <View style={styles.mediaPreviewWrap}>
+                <Image
+                  source={{ uri: imageUrl }}
+                  style={styles.mediaPreviewImg}
+                  contentFit="cover"
+                  transition={250}
+                />
+                <TouchableOpacity
+                  style={styles.removeMediaBtn}
+                  onPress={() => {
+                    setImageUrl('');
+                    setMediaAttachmentType('none');
+                  }}>
+                  <Ionicons name="trash" size={14} color="#FFFFFF" />
+                  <Text style={styles.removeMediaBtnText}>Remove Photo</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        )}
+
+        {/* Video Presets & Input */}
+        {mediaAttachmentType === 'video' && (
+          <View
+            style={[
+              styles.mediaConfigBox,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}>
+            <Text style={[styles.presetHeader, { color: colors.textSecondary }]}>
+              QUICK VIDEO DEMO PRESETS (TAP TO SELECT)
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.presetScroll}>
+              {VIDEO_PRESETS.map((preset, idx) => {
+                const isSelected = videoUrl === preset.videoUrl;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[
+                      styles.presetChip,
+                      {
+                        backgroundColor: isSelected
+                          ? 'rgba(25, 230, 140, 0.15)'
+                          : colors.inputBackground,
+                        borderColor: isSelected
+                          ? colors.primary
+                          : colors.cardBorder,
+                      },
+                    ]}
+                    onPress={() => {
+                      setVideoUrl(preset.videoUrl);
+                      setImageUrl(preset.thumbUrl);
+                      setVideoDuration(preset.duration);
+                    }}>
+                    <Ionicons
+                      name="videocam"
+                      size={14}
+                      color={isSelected ? colors.primary : colors.textSecondary}
+                    />
+                    <Text
+                      style={[
+                        styles.presetChipText,
+                        {
+                          color: isSelected ? colors.primary : colors.text,
+                          fontWeight: isSelected ? '700' : '500',
+                        },
+                      ]}>
+                      {preset.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            <TextInput
+              style={[
+                styles.smallInput,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                  marginTop: 10,
+                },
+              ]}
+              placeholder="Custom video URL (.mp4 / stream)"
+              placeholderTextColor={colors.textTertiary}
+              value={videoUrl}
+              onChangeText={setVideoUrl}
+              autoCapitalize="none"
+            />
+
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+              <TextInput
+                style={[
+                  styles.smallInput,
+                  {
+                    flex: 1,
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.inputBorder,
+                    color: colors.text,
+                  },
+                ]}
+                placeholder="Video Thumbnail Poster URL (optional)"
+                placeholderTextColor={colors.textTertiary}
+                value={imageUrl}
+                onChangeText={setImageUrl}
+                autoCapitalize="none"
+              />
+              <TextInput
+                style={[
+                  styles.smallInput,
+                  {
+                    width: 90,
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.inputBorder,
+                    color: colors.text,
+                    textAlign: 'center',
+                  },
+                ]}
+                placeholder="Duration"
+                placeholderTextColor={colors.textTertiary}
+                value={videoDuration}
+                onChangeText={setVideoDuration}
+              />
+            </View>
+
+            {/* Live Video Preview Card */}
+            {videoUrl ? (
+              <View style={styles.mediaPreviewWrap}>
+                <Image
+                  source={{
+                    uri:
+                      imageUrl ||
+                      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800',
+                  }}
+                  style={styles.mediaPreviewImg}
+                  contentFit="cover"
+                  transition={250}
+                />
+                <View style={styles.mediaPreviewVideoOverlay} />
+                <View style={[styles.playButtonCirclePreview, { backgroundColor: colors.primary }]}>
+                  <Ionicons name="play" size={20} color="#07111F" style={{ marginLeft: 2 }} />
+                </View>
+                <View style={styles.durationPillPreview}>
+                  <Text style={styles.durationPillText}>{videoDuration || '0:45'}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.removeMediaBtn}
+                  onPress={() => {
+                    setVideoUrl('');
+                    setImageUrl('');
+                    setMediaAttachmentType('none');
+                  }}>
+                  <Ionicons name="trash" size={14} color="#FFFFFF" />
+                  <Text style={styles.removeMediaBtnText}>Remove Video</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View>
+        )}
 
         {/* Tags */}
         <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>COMMUNITY TAGS</Text>
@@ -871,5 +1297,127 @@ const styles = StyleSheet.create({
   },
   closeModalBtn: {
     padding: 6,
+  },
+  mediaTypeRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  mediaTypeBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 9,
+    paddingHorizontal: 8,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+  },
+  mediaTypeBtnActive: {
+    shadowColor: '#19E68C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  mediaTypeBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  mediaConfigBox: {
+    padding: 12,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: 14,
+  },
+  presetHeader: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    marginBottom: 8,
+  },
+  presetScroll: {
+    gap: 8,
+    paddingBottom: 4,
+  },
+  presetChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+  },
+  presetChipText: {
+    fontSize: 12,
+  },
+  mediaPreviewWrap: {
+    marginTop: 12,
+    borderRadius: Radius.md,
+    overflow: 'hidden',
+    height: 180,
+    position: 'relative',
+    backgroundColor: '#0D1724',
+    borderWidth: 1,
+    borderColor: '#263548',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mediaPreviewImg: {
+    width: '100%',
+    height: '100%',
+  },
+  mediaPreviewVideoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(7, 17, 31, 0.45)',
+  },
+  playButtonCirclePreview: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#19E68C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+  },
+  durationPillPreview: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    backgroundColor: 'rgba(7, 17, 31, 0.85)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  durationPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#F8FAFC',
+  },
+  removeMediaBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(239, 68, 68, 0.9)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 6,
+  },
+  removeMediaBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 });

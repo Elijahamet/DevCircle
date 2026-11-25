@@ -29,6 +29,7 @@ export default function PostDetailsScreen() {
   const {
     posts,
     currentUser,
+    deletePost,
     toggleLikePost,
     toggleBookmarkPost,
     addComment,
@@ -40,6 +41,7 @@ export default function PostDetailsScreen() {
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({});
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
 
   const post = useMemo(() => {
     return posts.find((p) => p.id === id);
@@ -74,6 +76,25 @@ export default function PostDetailsScreen() {
       </SafeAreaView>
     );
   }
+
+  const handleDeletePost = () => {
+    if (!post) return;
+    Alert.alert(
+      'Delete Post',
+      'Are you sure you want to delete this post? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deletePost(post.id);
+            router.back();
+          },
+        },
+      ]
+    );
+  };
 
   const handleShare = async () => {
     try {
@@ -148,12 +169,22 @@ export default function PostDetailsScreen() {
             <Ionicons name="arrow-back" size={22} color={colors.text} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>Discussion</Text>
-          <TouchableOpacity
-            onPress={handleShare}
-            style={styles.headerActionBtn}
-            activeOpacity={0.7}>
-            <Ionicons name="share-social-outline" size={20} color={colors.text} />
-          </TouchableOpacity>
+          <View style={styles.headerRightActions}>
+            <TouchableOpacity
+              onPress={handleShare}
+              style={styles.headerActionBtn}
+              activeOpacity={0.7}>
+              <Ionicons name="share-social-outline" size={20} color={colors.text} />
+            </TouchableOpacity>
+            {post && (post.isAuthorSelf || post.author.id === currentUser.id) && (
+              <TouchableOpacity
+                onPress={handleDeletePost}
+                style={[styles.headerActionBtn, { marginLeft: 6 }]}
+                activeOpacity={0.7}>
+                <Ionicons name="trash-outline" size={20} color={colors.danger} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         <ScrollView
@@ -218,8 +249,91 @@ export default function PostDetailsScreen() {
               <CodeBlock snippet={post.codeSnippet} showCopy={true} />
             )}
 
-            {/* Image (if any) */}
-            {post.imageUrl && (
+            {/* Video Player (if videoUrl or mediaType === 'video') */}
+            {(post.videoUrl || post.mediaType === 'video') && (
+              <View
+                style={[
+                  styles.videoContainer,
+                  {
+                    borderColor: colors.cardBorder,
+                    backgroundColor: colors.backgroundSecondary,
+                  },
+                ]}>
+                <Image
+                  source={{
+                    uri:
+                      post.imageUrl ||
+                      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800',
+                  }}
+                  style={styles.videoThumbnail}
+                  contentFit="cover"
+                  transition={250}
+                />
+                <View style={styles.videoOverlay} />
+
+                {/* Video Header Badge */}
+                <View
+                  style={[
+                    styles.videoBadgePill,
+                    {
+                      backgroundColor: 'rgba(7, 17, 31, 0.85)',
+                      borderColor: colors.cardBorder,
+                    },
+                  ]}>
+                  <Ionicons name="videocam" size={13} color={colors.primary} />
+                  <Text style={[styles.videoBadgeText, { color: colors.primary }]}>
+                    {isPlayingVideo ? 'PLAYING DEMO' : 'VIDEO DEMO'}
+                  </Text>
+                </View>
+
+                {/* Center Play / Pause Button */}
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setIsPlayingVideo(!isPlayingVideo)}
+                  style={[styles.playButtonCircle, { backgroundColor: colors.primary }]}>
+                  <Ionicons
+                    name={isPlayingVideo ? 'pause' : 'play'}
+                    size={26}
+                    color="#07111F"
+                    style={!isPlayingVideo ? { marginLeft: 3 } : undefined}
+                  />
+                </TouchableOpacity>
+
+                {/* Video Controls Bar */}
+                <View style={styles.videoControlsBar}>
+                  <TouchableOpacity
+                    onPress={() => setIsPlayingVideo(!isPlayingVideo)}
+                    style={styles.smallPlayBtn}>
+                    <Ionicons
+                      name={isPlayingVideo ? 'pause' : 'play'}
+                      size={14}
+                      color="#F8FAFC"
+                    />
+                  </TouchableOpacity>
+
+                  {/* Progress track */}
+                  <View style={styles.progressBarTrack}>
+                    <View
+                      style={[
+                        styles.progressBarFill,
+                        {
+                          width: isPlayingVideo ? '65%' : '0%',
+                          backgroundColor: colors.primary,
+                        },
+                      ]}
+                    />
+                  </View>
+
+                  <Text style={styles.videoDurationText}>
+                    {isPlayingVideo ? '0:28 / ' : ''}
+                    {post.videoDuration || '0:45'}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {/* Image (if any and not video) */}
+            {post.imageUrl && !post.videoUrl && post.mediaType !== 'video' && (
               <View style={[styles.imageContainer, { borderColor: colors.cardBorder }]}>
                 <Image
                   source={{ uri: post.imageUrl }}
@@ -644,6 +758,98 @@ const styles = StyleSheet.create({
   postImage: {
     width: '100%',
     height: 240,
+  },
+  videoContainer: {
+    borderRadius: Radius.md,
+    overflow: 'hidden',
+    marginVertical: Spacing.sm,
+    height: 240,
+    borderWidth: 1,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoThumbnail: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(7, 17, 31, 0.45)',
+  },
+  playButtonCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#19E68C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  videoBadgePill: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  videoBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  videoControlsBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(7, 17, 31, 0.88)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 10,
+  },
+  smallPlayBtn: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  progressBarTrack: {
+    flex: 1,
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  videoDurationText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#F8FAFC',
+  },
+  headerRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   projectBox: {
     backgroundColor: '#122032',
