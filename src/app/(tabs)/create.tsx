@@ -90,10 +90,11 @@ const VIDEO_PRESETS = [
 
 export default function CreatePostScreen() {
   const router = useRouter();
-  const { currentUser, createPost, colors } = useDevCircle();
+  const { currentUser, createPost, communities, colors } = useDevCircle();
 
   const [selectedType, setSelectedType] = useState<PostType>('discussion');
   const [selectedCategory, setSelectedCategory] = useState<PostCategory>('ghana_tech');
+  const [selectedCommunityId, setSelectedCommunityId] = useState<string>('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tagInput, setTagInput] = useState('');
@@ -163,6 +164,7 @@ export default function CreatePostScreen() {
     }
 
     setTimeout(() => {
+      const activeComm = communities.find((c) => c.id === selectedCommunityId);
       createPost({
         type: selectedType,
         category: selectedCategory,
@@ -181,6 +183,8 @@ export default function CreatePostScreen() {
           mediaAttachmentType === 'video' ? videoDuration.trim() || '0:45' : undefined,
         projectMeta,
         tags,
+        communityId: activeComm?.id,
+        communityName: activeComm?.name,
       });
 
       setSubmitting(false);
@@ -322,6 +326,74 @@ export default function CreatePostScreen() {
                     isSelected && { fontWeight: '700' },
                   ]}>
                   {pt.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* Post to Community / Group (Optional) */}
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+          POST TO COMMUNITY / GROUP (OPTIONAL)
+        </Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesRow}>
+          <TouchableOpacity
+            style={[
+              styles.catPill,
+              {
+                backgroundColor: !selectedCommunityId
+                  ? colors.primary
+                  : colors.inputBackground,
+                borderColor: !selectedCommunityId
+                  ? colors.primary
+                  : colors.cardBorder,
+              },
+            ]}
+            onPress={() => setSelectedCommunityId('')}>
+            <Text
+              style={[
+                styles.catPillText,
+                {
+                  color: !selectedCommunityId
+                    ? colors.textInverse
+                    : colors.textSecondary,
+                  fontWeight: !selectedCommunityId ? '700' : '500',
+                },
+              ]}>
+              Feed Wide (No Group)
+            </Text>
+          </TouchableOpacity>
+          {communities.map((comm) => {
+            const isSelected = selectedCommunityId === comm.id;
+            return (
+              <TouchableOpacity
+                key={comm.id}
+                style={[
+                  styles.catPill,
+                  {
+                    backgroundColor: isSelected
+                      ? colors.primary
+                      : colors.inputBackground,
+                    borderColor: isSelected
+                      ? colors.primary
+                      : colors.cardBorder,
+                  },
+                ]}
+                onPress={() => setSelectedCommunityId(comm.id)}>
+                <Text
+                  style={[
+                    styles.catPillText,
+                    {
+                      color: isSelected
+                        ? colors.textInverse
+                        : colors.textSecondary,
+                      fontWeight: isSelected ? '700' : '500',
+                    },
+                  ]}>
+                  {comm.name}
                 </Text>
               </TouchableOpacity>
             );

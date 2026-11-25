@@ -10,6 +10,8 @@ import {
   PostType,
   PostCategory,
   CodeSnippet,
+  Community,
+  CreateCommunityInput,
 } from '@/types';
 import {
   CURRENT_USER,
@@ -18,6 +20,7 @@ import {
   MOCK_PROJECTS,
   MOCK_OPPORTUNITIES,
   MOCK_NOTIFICATIONS,
+  MOCK_COMMUNITIES,
 } from '@/data/mockData';
 import { Themes, ThemeType, ThemeColors } from '@/constants/theme';
 
@@ -38,6 +41,8 @@ interface CreatePostInput {
     techStack: string[];
   };
   tags: string[];
+  communityId?: string;
+  communityName?: string;
 }
 
 interface DevCircleContextType {
@@ -50,6 +55,8 @@ interface DevCircleContextType {
   followingUserIds: string[];
   savedPostIds: string[];
   recentSearches: string[];
+  communities: Community[];
+  joinedCommunityIds: string[];
   isAuthenticated: boolean;
   isOnboarded: boolean;
   unreadNotificationsCount: number;
@@ -63,6 +70,8 @@ interface DevCircleContextType {
   // Actions
   createPost: (input: CreatePostInput) => Post;
   deletePost: (postId: string) => void;
+  createCommunity: (input: CreateCommunityInput) => Community;
+  toggleJoinCommunity: (communityId: string) => void;
   toggleLikePost: (postId: string) => void;
   toggleBookmarkPost: (postId: string) => void;
   addComment: (postId: string, content: string, parentCommentId?: string) => void;
@@ -93,6 +102,8 @@ const STORAGE_KEYS = {
   FOLLOWING: '@devcircle_following_v1',
   SAVED_POSTS: '@devcircle_saved_posts_v1',
   RECENT_SEARCHES: '@devcircle_recent_searches_v1',
+  COMMUNITIES: '@devcircle_communities_v1',
+  JOINED_COMMUNITIES: '@devcircle_joined_communities_v1',
   AUTH: '@devcircle_is_authenticated_v1',
   ONBOARDED: '@devcircle_is_onboarded_v1',
   THEME: '@devcircle_theme_mode_v2',
@@ -111,6 +122,11 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     'user_efua_mensah',
   ]);
   const [savedPostIds, setSavedPostIds] = useState<string[]>(['post_2', 'post_3']);
+  const [communities, setCommunities] = useState<Community[]>(MOCK_COMMUNITIES);
+  const [joinedCommunityIds, setJoinedCommunityIds] = useState<string[]>([
+    'comm_react_accra',
+    'comm_ai_ghana',
+  ]);
   const [recentSearches, setRecentSearches] = useState<string[]>([
     'Paystack Webhooks',
     'React Native Ghana',
@@ -134,6 +150,8 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           storedFollowing,
           storedSaved,
           storedSearches,
+          storedCommunities,
+          storedJoined,
           storedAuth,
           storedTheme,
         ] = await Promise.all([
@@ -145,6 +163,8 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           AsyncStorage.getItem(STORAGE_KEYS.FOLLOWING),
           AsyncStorage.getItem(STORAGE_KEYS.SAVED_POSTS),
           AsyncStorage.getItem(STORAGE_KEYS.RECENT_SEARCHES),
+          AsyncStorage.getItem(STORAGE_KEYS.COMMUNITIES),
+          AsyncStorage.getItem(STORAGE_KEYS.JOINED_COMMUNITIES),
           AsyncStorage.getItem(STORAGE_KEYS.AUTH),
           AsyncStorage.getItem(STORAGE_KEYS.THEME),
         ]);
@@ -157,6 +177,8 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (storedFollowing) setFollowingUserIds(JSON.parse(storedFollowing));
         if (storedSaved) setSavedPostIds(JSON.parse(storedSaved));
         if (storedSearches) setRecentSearches(JSON.parse(storedSearches));
+        if (storedCommunities) setCommunities(JSON.parse(storedCommunities));
+        if (storedJoined) setJoinedCommunityIds(JSON.parse(storedJoined));
         if (storedAuth !== null) setIsAuthenticated(JSON.parse(storedAuth));
         if (storedTheme === 'light' || storedTheme === 'dark') setThemeModeState(storedTheme);
       } catch (err) {
@@ -203,6 +225,8 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       videoDuration: input.videoDuration,
       projectMeta: input.projectMeta,
       tags: input.tags.length > 0 ? input.tags : ['DevCircle', 'GhanaTech'],
+      communityId: input.communityId,
+      communityName: input.communityName,
       likesCount: 0,
       isLiked: false,
       commentsCount: 0,
@@ -247,6 +271,66 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setSavedPostIds(nextSaved);
       persist(STORAGE_KEYS.SAVED_POSTS, nextSaved);
     }
+  };
+
+  const createCommunity = (input: CreateCommunityInput): Community => {
+    const newComm: Community = {
+      id: `comm_${Date.now()}`,
+      name: input.name.trim(),
+      slug: input.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      description: input.description.trim(),
+      avatar:
+        input.avatar?.trim() ||
+        'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80',
+      bannerUrl:
+        input.bannerUrl?.trim() ||
+        'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80',
+      category: input.category,
+      membersCount: 1,
+      postsCount: 0,
+      isJoined: true,
+      createdAt: 'Just now',
+      creator: currentUser,
+      tags: input.tags.length > 0 ? input.tags : ['GhanaTech', 'Community'],
+    };
+
+    const nextCommunities = [newComm, ...communities];
+    setCommunities(nextCommunities);
+    persist(STORAGE_KEYS.COMMUNITIES, nextCommunities);
+
+    const nextJoined = [newComm.id, ...joinedCommunityIds];
+    setJoinedCommunityIds(nextJoined);
+    persist(STORAGE_KEYS.JOINED_COMMUNITIES, nextJoined);
+
+    return newComm;
+  };
+
+  const toggleJoinCommunity = (communityId: string) => {
+    let nextJoined = [...joinedCommunityIds];
+    const isCurrentlyJoined = nextJoined.includes(communityId);
+
+    if (isCurrentlyJoined) {
+      nextJoined = nextJoined.filter((id) => id !== communityId);
+    } else {
+      nextJoined.push(communityId);
+    }
+    setJoinedCommunityIds(nextJoined);
+    persist(STORAGE_KEYS.JOINED_COMMUNITIES, nextJoined);
+
+    const nextCommunities = communities.map((c) => {
+      if (c.id === communityId) {
+        return {
+          ...c,
+          isJoined: !isCurrentlyJoined,
+          membersCount: !isCurrentlyJoined
+            ? c.membersCount + 1
+            : Math.max(1, c.membersCount - 1),
+        };
+      }
+      return c;
+    });
+    setCommunities(nextCommunities);
+    persist(STORAGE_KEYS.COMMUNITIES, nextCommunities);
   };
 
   const toggleLikePost = (postId: string) => {
@@ -495,6 +579,10 @@ export const DevCircleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setTheme,
         createPost,
         deletePost,
+        createCommunity,
+        toggleJoinCommunity,
+        communities,
+        joinedCommunityIds,
         toggleLikePost,
         toggleBookmarkPost,
         addComment,

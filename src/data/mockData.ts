@@ -1,4 +1,4 @@
-import { User, Post, Project, Opportunity, Notification, CategoryItem } from '@/types';
+import { User, Post, Project, Opportunity, Notification, CategoryItem, Community } from '@/types';
 
 export const CURRENT_USER: User = {
   id: 'user_kofi_mensah',
@@ -694,5 +694,98 @@ export const CATEGORIES_LIST: CategoryItem[] = [
     description: 'Docker, Kubernetes, AWS, CI/CD, and Infrastructure.',
     topicsCount: 490,
     color: '#10B981',
+  },
+];
+
+export const MOCK_COMMUNITIES: Community[] = [
+  {
+    id: 'comm_react_accra',
+    name: 'React Accra',
+    slug: 'react-accra',
+    description:
+      'The largest community of React, Next.js, and React Native developers in Greater Accra. We organize monthly meetups, code sprints, and hackathons.',
+    avatar:
+      'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=80',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80',
+    category: 'Frontend & Mobile',
+    membersCount: 840,
+    postsCount: 156,
+    isJoined: true,
+    createdAt: 'Founded Jan 2024',
+    creator: DEMO_USERS.user_yaw_frimpong,
+    tags: ['React', 'NextJS', 'ReactNative', 'Accra', 'UI'],
+  },
+  {
+    id: 'comm_ghana_fintech',
+    name: 'Ghana Fintech Builders',
+    slug: 'ghana-fintech-builders',
+    description:
+      'Engineers, product leads, and founders building payment gateways, MoMo integrations, bank switch APIs, and microfinance platforms in Ghana.',
+    avatar:
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&auto=format&fit=crop&q=80',
+    category: 'Fintech & Payments',
+    membersCount: 1250,
+    postsCount: 312,
+    isJoined: false,
+    createdAt: 'Founded Sep 2023',
+    creator: DEMO_USERS.user_ama_osei,
+    tags: ['Paystack', 'MoMo', 'Hubtel', 'Payments', 'Security'],
+  },
+  {
+    id: 'comm_ai_ghana',
+    name: 'AI & NLP Ghana',
+    slug: 'ai-nlp-ghana',
+    description:
+      'Machine learning researchers and software developers fine-tuning large language models, local speech-to-text (Twi, Fante, Ga, Ewe), and computer vision for Africa.',
+    avatar:
+      'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=80',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
+    category: 'AI & Data Science',
+    membersCount: 620,
+    postsCount: 94,
+    isJoined: true,
+    createdAt: 'Founded Nov 2024',
+    creator: DEMO_USERS.user_nana_akua,
+    tags: ['Python', 'TwiNLP', 'MachineLearning', 'PyTorch', 'Data'],
+  },
+  {
+    id: 'comm_cloud_kumasi',
+    name: 'Cloud & DevOps Kumasi',
+    slug: 'cloud-devops-kumasi',
+    description:
+      'Ashanti region tech community passionate about Kubernetes, Terraform, AWS, Docker containers, and high-availability distributed systems.',
+    avatar:
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&auto=format&fit=crop&q=80',
+    category: 'DevOps & Cloud',
+    membersCount: 430,
+    postsCount: 78,
+    isJoined: false,
+    createdAt: 'Founded Mar 2025',
+    creator: DEMO_USERS.user_kwame_boateng,
+    tags: ['DevOps', 'Kubernetes', 'Docker', 'Kumasi', 'Linux'],
+  },
+  {
+    id: 'comm_ashesi_tech',
+    name: 'Ashesi & Campus Tech Network',
+    slug: 'campus-tech-network',
+    description:
+      'Connecting technology students from Ashesi, KNUST, UG Legon, UCC, and MEST for hackathon teams, peer study circles, and internship mentorship.',
+    avatar:
+      'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&auto=format&fit=crop&q=80',
+    category: 'Students & Campus',
+    membersCount: 980,
+    postsCount: 204,
+    isJoined: false,
+    createdAt: 'Founded Feb 2024',
+    creator: CURRENT_USER,
+    tags: ['Campus', 'Students', 'Mentorship', 'Internships', 'Hackathons'],
   },
 ];

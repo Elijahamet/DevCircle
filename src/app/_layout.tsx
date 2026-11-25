@@ -29,6 +29,8 @@ function RootLayoutNav() {
         <Stack.Screen name="search" options={{ headerShown: false }} />
         <Stack.Screen name="projects" options={{ headerShown: false }} />
         <Stack.Screen name="events" options={{ headerShown: false }} />
+        <Stack.Screen name="communities" options={{ headerShown: false }} />
+        <Stack.Screen name="community/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
       </Stack>
     </>

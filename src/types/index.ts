@@ -84,6 +84,8 @@ export interface Post {
   createdAt: string;
   comments: Comment[];
   isAuthorSelf?: boolean;
+  communityId?: string;
+  communityName?: string;
 }
 
 export interface Project {
@@ -149,4 +151,29 @@ export interface CategoryItem {
   description: string;
   topicsCount: number;
   color: string;
+}
+
+export interface Community {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  avatar: string;
+  bannerUrl?: string;
+  category: string;
+  membersCount: number;
+  postsCount: number;
+  isJoined?: boolean;
+  createdAt: string;
+  creator: User;
+  tags: string[];
+}
+
+export interface CreateCommunityInput {
+  name: string;
+  description: string;
+  category: string;
+  avatar?: string;
+  bannerUrl?: string;
+  tags: string[];
 }

@@ -87,15 +87,33 @@ export default function HomeFeedScreen() {
               ]}>
               Join over 1,500 Ghanaian developers at the Accra Int. Conference Centre!
             </Text>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => router.push('/events')}
-              style={[styles.featuredCta, { backgroundColor: colors.primary }]}>
-              <Text style={[styles.featuredCtaText, { color: colors.textInverse }]}>
-                Explore Events
-              </Text>
-              <Ionicons name="arrow-forward" size={13} color={colors.textInverse} />
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => router.push('/communities')}
+                style={[styles.featuredCta, { backgroundColor: colors.primary }]}>
+                <Text style={[styles.featuredCtaText, { color: colors.textInverse }]}>
+                  Join Groups
+                </Text>
+                <Ionicons name="people" size={13} color={colors.textInverse} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => router.push('/events')}
+                style={[
+                  styles.featuredCta,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderWidth: 1,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}>
+                <Text style={[styles.featuredCtaText, { color: colors.text }]}>
+                  Events
+                </Text>
+                <Ionicons name="arrow-forward" size={13} color={colors.text} />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <TouchableOpacity

@@ -143,6 +143,26 @@ export const PostCard: React.FC<PostCardProps> = ({
         </TouchableOpacity>
 
         <View style={styles.headerRight}>
+          {post.communityName && (
+            <TouchableOpacity
+              onPress={() =>
+                router.push(`/community/${post.communityId || post.communityName}` as any)
+              }
+              style={[
+                styles.communityBadgePill,
+                {
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.cardBorder,
+                },
+              ]}>
+              <Ionicons name="people" size={11} color={colors.primary} />
+              <Text
+                style={[styles.communityBadgePillText, { color: colors.primary }]}
+                numberOfLines={1}>
+                {post.communityName}
+              </Text>
+            </TouchableOpacity>
+          )}
           {getTypeBadge(post.type)}
           <TouchableOpacity
             style={styles.moreButton}
@@ -457,6 +477,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  communityBadgePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    maxWidth: 120,
+  },
+  communityBadgePillText: {
+    fontSize: 10.5,
+    fontWeight: '700',
   },
   moreButton: {
     padding: 4,

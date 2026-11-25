@@ -14,13 +14,25 @@ import { Radius, Spacing } from '@/constants/theme';
 import { AppHeader } from '@/components/AppHeader';
 import { Avatar } from '@/components/Avatar';
 import { ProjectCard } from '@/components/ProjectCard';
+import { CreateCommunityModal } from '@/components/CreateCommunityModal';
+import { Image } from 'expo-image';
 import { useDevCircle } from '@/context/DevCircleContext';
 import { CATEGORIES_LIST } from '@/data/mockData';
 
 export default function DiscoverScreen() {
   const router = useRouter();
-  const { users, projects, followingUserIds, toggleFollowUser, colors } = useDevCircle();
+  const {
+    users,
+    projects,
+    communities,
+    joinedCommunityIds,
+    toggleJoinCommunity,
+    followingUserIds,
+    toggleFollowUser,
+    colors,
+  } = useDevCircle();
   const [quickQuery, setQuickQuery] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const trendingTopics = [
     { tag: 'MoMoAPI', count: '142 posts' },
@@ -133,6 +145,143 @@ export default function DiscoverScreen() {
               style={{ marginLeft: 'auto' }}
             />
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.hubCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.cardBorder,
+              },
+            ]}
+            activeOpacity={0.8}
+            onPress={() => router.push('/communities')}>
+            <View style={[styles.hubIconBg, { backgroundColor: 'rgba(168, 85, 247, 0.12)' }]}>
+              <Ionicons name="people" size={20} color="#A855F7" />
+            </View>
+            <View>
+              <Text style={[styles.hubTitle, { color: colors.text }]}>Tech Communities & Groups</Text>
+              <Text style={[styles.hubSubtitle, { color: colors.textSecondary }]}>
+                Join Ghanaian developer circles
+              </Text>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={colors.textTertiary}
+              style={{ marginLeft: 'auto' }}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Ghana Developer Communities & Groups Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionHeaderLeft}>
+              <Ionicons name="people" size={18} color={colors.primary} />
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Developer Communities
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => setShowCreateModal(true)}
+                style={[
+                  styles.createGroupPill,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.cardBorder,
+                  },
+                ]}>
+                <Ionicons name="add" size={13} color={colors.primary} />
+                <Text style={[styles.createGroupPillText, { color: colors.primary }]}>
+                  Create
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/communities')}>
+                <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.communitiesScroll}>
+            {communities.map((comm) => {
+              const isJoined = joinedCommunityIds.includes(comm.id) || !!comm.isJoined;
+              return (
+                <TouchableOpacity
+                  key={comm.id}
+                  activeOpacity={0.85}
+                  onPress={() => router.push(`/community/${comm.id}` as any)}
+                  style={[
+                    styles.communityDiscoverCard,
+                    {
+                      backgroundColor: colors.card,
+                      borderColor: colors.cardBorder,
+                    },
+                  ]}>
+                  <Image
+                    source={{ uri: comm.avatar }}
+                    style={styles.communityDiscoverAvatar}
+                    contentFit="cover"
+                    transition={200}
+                  />
+                  <Text
+                    style={[styles.communityDiscoverName, { color: colors.text }]}
+                    numberOfLines={1}>
+                    {comm.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.communityDiscoverMembers,
+                      { color: colors.textSecondary },
+                    ]}>
+                    {comm.membersCount.toLocaleString()} members
+                  </Text>
+                  <Text
+                    style={[
+                      styles.communityDiscoverDesc,
+                      { color: colors.textSecondary },
+                    ]}
+                    numberOfLines={2}>
+                    {comm.description}
+                  </Text>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => toggleJoinCommunity(comm.id)}
+                    style={[
+                      styles.communityDiscoverJoinBtn,
+                      {
+                        backgroundColor: isJoined
+                          ? colors.inputBackground
+                          : colors.primary,
+                        borderColor: isJoined
+                          ? colors.cardBorder
+                          : colors.primary,
+                      },
+                    ]}>
+                    <Ionicons
+                      name={isJoined ? 'checkmark-circle' : 'add'}
+                      size={14}
+                      color={isJoined ? colors.primary : colors.textInverse}
+                    />
+                    <Text
+                      style={[
+                        styles.communityDiscoverJoinText,
+                        {
+                          color: isJoined ? colors.primary : colors.textInverse,
+                        },
+                      ]}>
+                      {isJoined ? 'Joined' : 'Join'}
+                    </Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         </View>
 
         {/* Popular Ghanaian Developers to Follow */}
@@ -335,6 +484,15 @@ export default function DiscoverScreen() {
           ))}
         </View>
       </ScrollView>
+
+      {/* Create Community Modal */}
+      <CreateCommunityModal
+        visible={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreated={(newComm) => {
+          router.push(`/community/${newComm.id}` as any);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -570,5 +728,68 @@ const styles = StyleSheet.create({
   catTopics: {
     fontSize: 10.5,
     color: '#64748B',
+  },
+  createGroupPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+  },
+  createGroupPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  communitiesScroll: {
+    paddingHorizontal: Spacing.md,
+    gap: 12,
+  },
+  communityDiscoverCard: {
+    width: 200,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    padding: 12,
+    alignItems: 'center',
+  },
+  communityDiscoverAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    marginBottom: 8,
+  },
+  communityDiscoverName: {
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 2,
+    width: '100%',
+  },
+  communityDiscoverMembers: {
+    fontSize: 11,
+    marginBottom: 6,
+  },
+  communityDiscoverDesc: {
+    fontSize: 11.5,
+    lineHeight: 15,
+    textAlign: 'center',
+    marginBottom: 10,
+    height: 30,
+  },
+  communityDiscoverJoinBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  communityDiscoverJoinText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
 });
