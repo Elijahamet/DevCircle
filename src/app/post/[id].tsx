@@ -11,6 +11,7 @@ import {
   Platform,
   Alert,
   Share,
+  Animated,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +21,7 @@ import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
 import { CodeBlock } from '@/components/CodeBlock';
 import { EmptyState } from '@/components/EmptyState';
+import { ReactionBurst } from '@/components/ReactionBurst';
 import { useDevCircle } from '@/context/DevCircleContext';
 import { Comment } from '@/types';
 
@@ -42,10 +44,54 @@ export default function PostDetailsScreen() {
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({});
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+  const isNative = Platform.OS !== 'web';
+
+  const [likeBurstTrigger, setLikeBurstTrigger] = useState(0);
+  const [bookmarkBurstTrigger, setBookmarkBurstTrigger] = useState(0);
+  const [likeScale] = useState(() => new Animated.Value(1));
+  const [bookmarkScale] = useState(() => new Animated.Value(1));
 
   const post = useMemo(() => {
     return posts.find((p) => p.id === id);
   }, [posts, id]);
+
+  const handleLikePost = () => {
+    if (!post) return;
+    setLikeBurstTrigger((prev) => prev + 1);
+    Animated.sequence([
+      Animated.timing(likeScale, {
+        toValue: 1.45,
+        duration: 110,
+        useNativeDriver: isNative,
+      }),
+      Animated.spring(likeScale, {
+        toValue: 1,
+        friction: 3,
+        tension: 90,
+        useNativeDriver: isNative,
+      }),
+    ]).start();
+    toggleLikePost(post.id);
+  };
+
+  const handleBookmarkPost = () => {
+    if (!post) return;
+    setBookmarkBurstTrigger((prev) => prev + 1);
+    Animated.sequence([
+      Animated.timing(bookmarkScale, {
+        toValue: 1.35,
+        duration: 110,
+        useNativeDriver: isNative,
+      }),
+      Animated.spring(bookmarkScale, {
+        toValue: 1,
+        friction: 4,
+        tension: 80,
+        useNativeDriver: isNative,
+      }),
+    ]).start();
+    toggleBookmarkPost(post.id);
+  };
 
   const sortedComments = useMemo(() => {
     if (!post) return [];
@@ -384,12 +430,21 @@ export default function PostDetailsScreen() {
               <TouchableOpacity
                 style={styles.actionBtn}
                 activeOpacity={0.7}
-                onPress={() => toggleLikePost(post.id)}>
-                <Ionicons
-                  name={post.isLiked ? 'heart' : 'heart-outline'}
-                  size={20}
-                  color={post.isLiked ? colors.danger : colors.textSecondary}
-                />
+                onPress={handleLikePost}>
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                  <ReactionBurst
+                    triggerKey={likeBurstTrigger}
+                    color={colors.danger}
+                    size={40}
+                  />
+                  <Animated.View style={{ transform: [{ scale: likeScale }] }}>
+                    <Ionicons
+                      name={post.isLiked ? 'heart' : 'heart-outline'}
+                      size={20}
+                      color={post.isLiked ? colors.danger : colors.textSecondary}
+                    />
+                  </Animated.View>
+                </View>
                 <Text
                   style={[
                     styles.actionCount,
@@ -410,12 +465,21 @@ export default function PostDetailsScreen() {
               <TouchableOpacity
                 style={styles.actionBtn}
                 activeOpacity={0.7}
-                onPress={() => toggleBookmarkPost(post.id)}>
-                <Ionicons
-                  name={post.isBookmarked ? 'bookmark' : 'bookmark-outline'}
-                  size={19}
-                  color={post.isBookmarked ? colors.primary : colors.textSecondary}
-                />
+                onPress={handleBookmarkPost}>
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                  <ReactionBurst
+                    triggerKey={bookmarkBurstTrigger}
+                    color={colors.primary}
+                    size={38}
+                  />
+                  <Animated.View style={{ transform: [{ scale: bookmarkScale }] }}>
+                    <Ionicons
+                      name={post.isBookmarked ? 'bookmark' : 'bookmark-outline'}
+                      size={19}
+                      color={post.isBookmarked ? colors.primary : colors.textSecondary}
+                    />
+                  </Animated.View>
+                </View>
                 <Text
                   style={[
                     styles.actionCount,

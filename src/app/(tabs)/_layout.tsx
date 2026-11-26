@@ -1,8 +1,91 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs } from 'expo-router';
-import { View, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useDevCircle } from '@/context/DevCircleContext';
+
+const AnimatedCreateIcon: React.FC<{ primaryColor: string }> = ({ primaryColor }) => {
+  const isNative = Platform.OS !== 'web';
+  const [pulseAnim] = useState(() => new Animated.Value(1));
+  const [glowScale] = useState(() => new Animated.Value(1));
+  const [glowOpacity] = useState(() => new Animated.Value(0.4));
+
+  useEffect(() => {
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.06,
+          duration: 1200,
+          useNativeDriver: isNative,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: isNative,
+        }),
+      ])
+    );
+
+    const glowLoop = Animated.loop(
+      Animated.parallel([
+        Animated.timing(glowScale, {
+          toValue: 1.5,
+          duration: 1800,
+          useNativeDriver: isNative,
+        }),
+        Animated.sequence([
+          Animated.timing(glowOpacity, {
+            toValue: 0.55,
+            duration: 600,
+            useNativeDriver: isNative,
+          }),
+          Animated.timing(glowOpacity, {
+            toValue: 0,
+            duration: 1200,
+            useNativeDriver: isNative,
+          }),
+        ]),
+      ])
+    );
+
+    pulseLoop.start();
+    glowLoop.start();
+
+    return () => {
+      pulseLoop.stop();
+      glowLoop.stop();
+    };
+  }, [pulseAnim, glowScale, glowOpacity, isNative]);
+
+  return (
+    <View style={styles.createIconWrapper}>
+      {/* Expanding Pulsing Aura */}
+      <Animated.View
+        style={[
+          styles.glowAura,
+          {
+            borderColor: primaryColor,
+            opacity: glowOpacity,
+            transform: [{ scale: glowScale }],
+          },
+        ]}
+      />
+
+      {/* Main Animated Circle */}
+      <Animated.View
+        style={[
+          styles.createIconCircle,
+          {
+            backgroundColor: primaryColor,
+            shadowColor: primaryColor,
+            transform: [{ scale: pulseAnim }],
+          },
+        ]}>
+        <Ionicons name="add" size={25} color="#07111F" />
+      </Animated.View>
+    </View>
+  );
+};
 
 export default function TabLayout() {
   const { unreadNotificationsCount, colors } = useDevCircle();
@@ -59,13 +142,7 @@ export default function TabLayout() {
         options={{
           title: 'Create',
           tabBarShowLabel: false,
-          tabBarIcon: () => (
-            <View style={styles.createIconWrapper}>
-              <View style={[styles.createIconCircle, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
-                <Ionicons name="add" size={24} color="#07111F" />
-              </View>
-            </View>
-          ),
+          tabBarIcon: () => <AnimatedCreateIcon primaryColor={colors.primary} />,
         }}
       />
 
@@ -112,6 +189,14 @@ const styles = StyleSheet.create({
     top: -8,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  glowAura: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 2,
   },
   createIconCircle: {
     width: 44,

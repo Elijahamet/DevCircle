@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Radius, Spacing } from '@/constants/theme';
 import { Button } from './Button';
+import { CelebrationModal } from './CelebrationModal';
 import { useDevCircle } from '@/context/DevCircleContext';
 import { Community } from '@/types';
 
@@ -76,6 +77,8 @@ export const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   const [tags, setTags] = useState<string[]>(['GhanaTech', 'Community']);
   const [selectedPresetIdx, setSelectedPresetIdx] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [createdComm, setCreatedComm] = useState<Community | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const handleAddTag = () => {
     const clean = tagInput.trim().replace(/^#/, '');
@@ -114,21 +117,8 @@ export const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
       });
 
       setSubmitting(false);
-      resetForm();
-      onClose();
-
-      Alert.alert(
-        'Community Created! 🎉',
-        `"${newCommunity.name}" is now live! You are automatically joined as the group creator.`,
-        [
-          {
-            text: 'Open Group',
-            onPress: () => {
-              if (onCreated) onCreated(newCommunity);
-            },
-          },
-        ]
-      );
+      setCreatedComm(newCommunity);
+      setShowCelebration(true);
     }, 350);
   };
 
@@ -366,6 +356,23 @@ export const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
+
+      <CelebrationModal
+        visible={showCelebration}
+        title="Community Created!"
+        subtitle={`"${createdComm?.name || 'Your new group'}" is now live! You are automatically joined as the group creator.`}
+        badgeText="COMMUNITY LAUNCHED 🚀"
+        buttonText="Open Community"
+        onConfirm={() => {
+          const target = createdComm;
+          setShowCelebration(false);
+          resetForm();
+          onClose();
+          if (target && onCreated) {
+            onCreated(target);
+          }
+        }}
+      />
     </Modal>
   );
 };

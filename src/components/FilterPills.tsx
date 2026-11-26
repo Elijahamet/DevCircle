@@ -1,5 +1,13 @@
-import React from 'react';
-import { ScrollView, TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  ScrollView,
+  Text,
+  StyleSheet,
+  View,
+  Animated,
+  Pressable,
+  Platform,
+} from 'react-native';
 import { Radius, Spacing } from '@/constants/theme';
 import { useDevCircle } from '@/context/DevCircleContext';
 
@@ -14,6 +22,97 @@ interface FilterPillsProps {
   selectedId: string;
   onSelect: (id: string) => void;
 }
+
+interface AnimatedPillProps {
+  item: FilterItem;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+  colors: any;
+}
+
+const AnimatedPill: React.FC<AnimatedPillProps> = ({
+  item,
+  isSelected,
+  onSelect,
+  colors,
+}) => {
+  const isNative = Platform.OS !== 'web';
+  const [scaleAnim] = useState(() => new Animated.Value(1));
+
+  useEffect(() => {
+    if (isSelected) {
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.08,
+          duration: 140,
+          useNativeDriver: isNative,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 4,
+          tension: 70,
+          useNativeDriver: isNative,
+        }),
+      ]).start();
+    }
+  }, [isSelected, scaleAnim, isNative]);
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.92,
+      friction: 5,
+      tension: 100,
+      useNativeDriver: isNative,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 4,
+      tension: 60,
+      useNativeDriver: isNative,
+    }).start();
+  };
+
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <Pressable
+        onPress={() => onSelect(item.id)}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={[
+          styles.pill,
+          {
+            backgroundColor: isSelected
+              ? colors.primary
+              : colors.inputBackground,
+            borderColor: isSelected
+              ? colors.primary
+              : colors.cardBorder,
+            shadowColor: isSelected ? colors.primary : 'transparent',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: isSelected ? 0.35 : 0,
+            shadowRadius: 5,
+            elevation: isSelected ? 3 : 0,
+          },
+        ]}>
+        <Text
+          style={[
+            styles.label,
+            {
+              color: isSelected
+                ? colors.textInverse
+                : colors.textSecondary,
+            },
+            isSelected && styles.labelSelected,
+          ]}>
+          {item.label}
+        </Text>
+      </Pressable>
+    </Animated.View>
+  );
+};
 
 export const FilterPills: React.FC<FilterPillsProps> = ({
   items,
@@ -35,39 +134,15 @@ export const FilterPills: React.FC<FilterPillsProps> = ({
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
-        {items.map((item) => {
-          const isSelected = item.id === selectedId;
-          return (
-            <TouchableOpacity
-              key={item.id}
-              activeOpacity={0.75}
-              onPress={() => onSelect(item.id)}
-              style={[
-                styles.pill,
-                {
-                  backgroundColor: isSelected
-                    ? colors.primary
-                    : colors.inputBackground,
-                  borderColor: isSelected
-                    ? colors.primary
-                    : colors.cardBorder,
-                },
-              ]}>
-              <Text
-                style={[
-                  styles.label,
-                  {
-                    color: isSelected
-                      ? colors.textInverse
-                      : colors.textSecondary,
-                  },
-                  isSelected && styles.labelSelected,
-                ]}>
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+        {items.map((item) => (
+          <AnimatedPill
+            key={item.id}
+            item={item}
+            isSelected={item.id === selectedId}
+            onSelect={onSelect}
+            colors={colors}
+          />
+        ))}
       </ScrollView>
     </View>
   );
@@ -91,10 +166,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#132235',
     borderWidth: 1,
     borderColor: '#203248',
-  },
-  pillSelected: {
-    backgroundColor: '#19E68C',
-    borderColor: '#19E68C',
   },
   label: {
     fontSize: 13,

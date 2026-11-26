@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  TouchableOpacity,
   Text,
   StyleSheet,
   ActivityIndicator,
   ViewStyle,
   TextStyle,
   View,
+  Animated,
+  Pressable,
+  Platform,
 } from 'react-native';
 import { Radius, Spacing } from '@/constants/theme';
 import { useDevCircle } from '@/context/DevCircleContext';
@@ -39,21 +41,40 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
 }) => {
   const { colors } = useDevCircle();
+  const isNative = Platform.OS !== 'web';
+  const [scaleAnim] = useState(() => new Animated.Value(1));
+
+  const handlePressIn = () => {
+    if (disabled || loading) return;
+    Animated.spring(scaleAnim, {
+      toValue: 0.95,
+      friction: 5,
+      tension: 100,
+      useNativeDriver: isNative,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    if (disabled || loading) return;
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 4,
+      tension: 60,
+      useNativeDriver: isNative,
+    }).start();
+  };
 
   const getContainerStyles = (): ViewStyle[] => {
-    const list: ViewStyle[] = [
-      styles.base,
-      styles[size],
-    ];
+    const list: ViewStyle[] = [styles.base, styles[size]];
 
     if (variant === 'primary') {
       list.push({
         backgroundColor: colors.primary,
         shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 3,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.35,
+        shadowRadius: 6,
+        elevation: 4,
       });
     } else if (variant === 'secondary') {
       list.push({
@@ -70,6 +91,11 @@ export const Button: React.FC<ButtonProps> = ({
     } else if (variant === 'danger') {
       list.push({
         backgroundColor: colors.danger,
+        shadowColor: colors.danger,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 3,
       });
     } else {
       list.push(styles.ghost);
@@ -103,7 +129,7 @@ export const Button: React.FC<ButtonProps> = ({
     } else if (variant === 'outline') {
       list.push({ color: colors.primary, fontWeight: '700' });
     } else if (variant === 'danger') {
-      list.push({ color: '#FFFFFF' });
+      list.push({ color: '#FFFFFF', fontWeight: '700' });
     } else {
       list.push({ color: colors.textSecondary });
     }
@@ -116,24 +142,34 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.75}
-      onPress={onPress}
-      disabled={disabled || loading}
-      style={getContainerStyles()}>
-      {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={variant === 'primary' ? colors.textInverse : colors.primary}
-        />
-      ) : (
-        <>
-          {icon && <View style={styles.iconContainer}>{icon}</View>}
-          <Text style={getTextStyles()}>{title}</Text>
-          {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
-        </>
-      )}
-    </TouchableOpacity>
+    <Animated.View
+      style={[
+        fullWidth && styles.fullWidth,
+        { transform: [{ scale: scaleAnim }] },
+      ]}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled || loading}
+        style={({ pressed }) => [
+          getContainerStyles(),
+          pressed && styles.pressedState,
+        ]}>
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={variant === 'primary' ? colors.textInverse : colors.primary}
+          />
+        ) : (
+          <>
+            {icon && <View style={styles.iconContainer}>{icon}</View>}
+            <Text style={getTextStyles()}>{title}</Text>
+            {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
+          </>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 };
 
@@ -149,7 +185,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   disabled: {
-    opacity: 0.6,
+    opacity: 0.55,
+  },
+  pressedState: {
+    opacity: 0.9,
   },
   ghost: {
     backgroundColor: 'transparent',

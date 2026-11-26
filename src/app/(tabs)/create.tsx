@@ -17,6 +17,7 @@ import { Image } from 'expo-image';
 import { Radius, Spacing } from '@/constants/theme';
 import { Button } from '@/components/Button';
 import { PostCard } from '@/components/PostCard';
+import { CelebrationModal } from '@/components/CelebrationModal';
 import { useDevCircle } from '@/context/DevCircleContext';
 import { PostType, PostCategory, CodeSnippet, Post } from '@/types';
 
@@ -118,6 +119,7 @@ export default function CreatePostScreen() {
   // Preview Modal
   const [showPreview, setShowPreview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const handleAddTag = () => {
     const clean = tagInput.trim().replace(/^#/, '');
@@ -188,12 +190,7 @@ export default function CreatePostScreen() {
       });
 
       setSubmitting(false);
-      Alert.alert('Published!', 'Your post is now live in the DevCircle feed.', [
-        {
-          text: 'View Feed',
-          onPress: () => router.push('/(tabs)'),
-        },
-      ]);
+      setShowCelebration(true);
     }, 400);
   };
 
@@ -1074,6 +1071,18 @@ export default function CreatePostScreen() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      <CelebrationModal
+        visible={showCelebration}
+        title="Post Published!"
+        subtitle="Your post is now live and featured in the DevCircle developer community feed across Ghana."
+        badgeText="POST IS LIVE 🚀"
+        buttonText="View in Feed"
+        onConfirm={() => {
+          setShowCelebration(false);
+          router.push('/(tabs)');
+        }}
+      />
     </SafeAreaView>
   );
 }

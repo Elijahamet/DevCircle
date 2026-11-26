@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Share,
   Alert,
   Platform,
+  Animated,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -16,6 +17,7 @@ import { Post, PostType } from '@/types';
 import { Avatar } from './Avatar';
 import { Badge } from './Badge';
 import { CodeBlock } from './CodeBlock';
+import { ReactionBurst } from './ReactionBurst';
 import { useDevCircle } from '@/context/DevCircleContext';
 
 interface PostCardProps {
@@ -30,6 +32,57 @@ export const PostCard: React.FC<PostCardProps> = ({
   const router = useRouter();
   const { currentUser, deletePost, toggleLikePost, toggleBookmarkPost, colors } = useDevCircle();
   const [showOptions, setShowOptions] = useState(false);
+  const isNative = Platform.OS !== 'web';
+
+  const [likeBurstTrigger, setLikeBurstTrigger] = useState(0);
+  const [bookmarkBurstTrigger, setBookmarkBurstTrigger] = useState(0);
+  const [likeScale] = useState(() => new Animated.Value(1));
+  const [bookmarkScale] = useState(() => new Animated.Value(1));
+  const [cardEntrance] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    Animated.timing(cardEntrance, {
+      toValue: 1,
+      duration: 320,
+      useNativeDriver: isNative,
+    }).start();
+  }, [cardEntrance, isNative]);
+
+  const handleLike = () => {
+    setLikeBurstTrigger((prev) => prev + 1);
+    Animated.sequence([
+      Animated.timing(likeScale, {
+        toValue: 1.45,
+        duration: 110,
+        useNativeDriver: isNative,
+      }),
+      Animated.spring(likeScale, {
+        toValue: 1,
+        friction: 3,
+        tension: 90,
+        useNativeDriver: isNative,
+      }),
+    ]).start();
+    toggleLikePost(post.id);
+  };
+
+  const handleBookmark = () => {
+    setBookmarkBurstTrigger((prev) => prev + 1);
+    Animated.sequence([
+      Animated.timing(bookmarkScale, {
+        toValue: 1.35,
+        duration: 110,
+        useNativeDriver: isNative,
+      }),
+      Animated.spring(bookmarkScale, {
+        toValue: 1,
+        friction: 4,
+        tension: 80,
+        useNativeDriver: isNative,
+      }),
+    ]).start();
+    toggleBookmarkPost(post.id);
+  };
 
   const getTypeBadge = (type: PostType) => {
     switch (type) {
@@ -101,12 +154,21 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.card,
         {
           backgroundColor: colors.card,
           borderColor: colors.cardBorder,
+          opacity: cardEntrance,
+          transform: [
+            {
+              translateY: cardEntrance.interpolate({
+                inputRange: [0, 1],
+                outputRange: [12, 0],
+              }),
+            },
+          ],
         },
       ]}>
       {/* Top Author Row */}
@@ -357,12 +419,21 @@ export const PostCard: React.FC<PostCardProps> = ({
         <TouchableOpacity
           style={styles.actionBtn}
           activeOpacity={0.7}
-          onPress={() => toggleLikePost(post.id)}>
-          <Ionicons
-            name={post.isLiked ? 'heart' : 'heart-outline'}
-            size={19}
-            color={post.isLiked ? colors.danger : colors.textSecondary}
-          />
+          onPress={handleLike}>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <ReactionBurst
+              triggerKey={likeBurstTrigger}
+              color={colors.danger}
+              size={36}
+            />
+            <Animated.View style={{ transform: [{ scale: likeScale }] }}>
+              <Ionicons
+                name={post.isLiked ? 'heart' : 'heart-outline'}
+                size={19}
+                color={post.isLiked ? colors.danger : colors.textSecondary}
+              />
+            </Animated.View>
+          </View>
           <Text
             style={[
               styles.actionCount,
@@ -386,12 +457,21 @@ export const PostCard: React.FC<PostCardProps> = ({
         <TouchableOpacity
           style={styles.actionBtn}
           activeOpacity={0.7}
-          onPress={() => toggleBookmarkPost(post.id)}>
-          <Ionicons
-            name={post.isBookmarked ? 'bookmark' : 'bookmark-outline'}
-            size={18}
-            color={post.isBookmarked ? colors.primary : colors.textSecondary}
-          />
+          onPress={handleBookmark}>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <ReactionBurst
+              triggerKey={bookmarkBurstTrigger}
+              color={colors.primary}
+              size={34}
+            />
+            <Animated.View style={{ transform: [{ scale: bookmarkScale }] }}>
+              <Ionicons
+                name={post.isBookmarked ? 'bookmark' : 'bookmark-outline'}
+                size={18}
+                color={post.isBookmarked ? colors.primary : colors.textSecondary}
+              />
+            </Animated.View>
+          </View>
           <Text
             style={[
               styles.actionCount,
@@ -409,7 +489,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           <Ionicons name="share-social-outline" size={18} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
